@@ -35,7 +35,7 @@ app.use(cookieParser());
 // );
 
 const corsOptions = {
-  origin: ['http://localhost:8080', 'http://localhost:3000'],
+  origin: ['http://localhost:5173', 'http://localhost:8080', 'https://www.codersplace.in/'],
   credentials: true, // Allow cookies to be sent
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
