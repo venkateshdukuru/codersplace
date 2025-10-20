@@ -21,33 +21,26 @@ interface Problem {
 
 const ARV = () => {
   const { user, isAuthenticated } = useAuth();
+
+  // States
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("aptitude");
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [practiceMode, setPracticeMode] = useState<Problem | null>(null);
   const [userScore, setUserScore] = useState(0);
 
+  // Categories
   const categories = [
     { id: "aptitude", label: "Aptitude", icon: Calculator, color: "text-primary" },
     { id: "reasoning", label: "Reasoning", icon: Brain, color: "text-success" },
     { id: "verbal", label: "Verbal", icon: MessageCircle, color: "text-warning" }
   ];
 
+  // Topics
   const topics = {
-    aptitude: [
-      "Quantitative Aptitude", "Data Interpretation", "Probability", "Permutation & Combination",
-      "Profit & Loss", "Time & Work", "Speed & Distance", "Simple & Compound Interest",
-      "Ratio & Proportion", "Percentages", "Algebra", "Geometry"
-    ],
-    reasoning: [
-      "Logical Reasoning", "Analytical Reasoning", "Verbal Reasoning", "Non-Verbal Reasoning",
-      "Data Sufficiency", "Statement & Conclusions", "Syllogisms", "Blood Relations",
-      "Direction Sense", "Coding-Decoding", "Pattern Recognition", "Series Completion"
-    ],
-    verbal: [
-      "Reading Comprehension", "Grammar", "Vocabulary", "Sentence Correction", "Para Jumbles",
-      "Fill in the Blanks", "Synonyms & Antonyms", "Idioms & Phrases", "One Word Substitution",
-      "Error Detection", "Active & Passive Voice", "Direct & Indirect Speech"
-    ]
+    aptitude: ["Quantitative Aptitude","Data Interpretation","Probability","Permutation & Combination","Profit & Loss","Time & Work","Speed & Distance","Simple & Compound Interest","Ratio & Proportion","Percentages","Algebra","Geometry"],
+    reasoning: ["Logical Reasoning","Analytical Reasoning","Verbal Reasoning","Non-Verbal Reasoning","Data Sufficiency","Statement & Conclusions","Syllogisms","Blood Relations","Direction Sense","Coding-Decoding","Pattern Recognition","Series Completion"],
+    verbal: ["Reading Comprehension","Grammar","Vocabulary","Sentence Correction","Para Jumbles","Fill in the Blanks","Synonyms & Antonyms","Idioms & Phrases","One Word Substitution","Error Detection","Active & Passive Voice","Direct & Indirect Speech"]
   };
 
   const problems = {
@@ -176,10 +169,12 @@ const ARV = () => {
     ]
   };
 
-  const filteredProblems = problems[selectedCategory as keyof typeof problems].filter(problem => {
-    return selectedDifficulty === "all" || problem.difficulty === selectedDifficulty;
+ const filteredProblems = problems[selectedCategory as keyof typeof problems].filter(problem => {
+    return (selectedDifficulty === "all" || problem.difficulty === selectedDifficulty) &&
+           (!selectedTopic || problem.topic === selectedTopic);
   });
 
+  // Map difficulty to badge variant
   const getDifficultyVariant = (difficulty: string) => {
     switch (difficulty) {
       case "easy": return "easy";
@@ -189,19 +184,18 @@ const ARV = () => {
     }
   };
 
+  // Practice handlers
   const handlePracticeStart = (problem: Problem) => {
-    if (!isAuthenticated) {
-      return;
-    }
+    if (!isAuthenticated) return;
     setPracticeMode(problem);
   };
-
   const handlePracticeComplete = (score: number) => {
     setUserScore(prev => prev + score);
     setPracticeMode(null);
   };
 
-  if (false) {  // instead of !isAuthenticated *****
+  // Authentication check
+  if (!isAuthenticated) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto text-center">
@@ -228,24 +222,22 @@ const ARV = () => {
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Aptitude, Reasoning & Verbal (ARV)
-          </h1>
+          <h1 className="text-4xl font-bold text-foreground mb-4">Aptitude, Reasoning & Verbal (ARV)</h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Master aptitude tests with comprehensive practice in quantitative aptitude, 
-            logical reasoning, and verbal ability sections.
+            Master aptitude tests with comprehensive practice in quantitative aptitude, logical reasoning, and verbal ability sections.
           </p>
         </div>
 
         {/* Category Tabs */}
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-8">
           <TabsList className="grid w-full grid-cols-3">
-            {categories.map((category) => {
+            {categories.map(category => {
               const Icon = category.icon;
               return (
-                <TabsTrigger key={category.id} value={category.id} className="flex items-center gap-2">
+                <TabsTrigger key={category.id} value={category.id} className="flex items-center justify-center gap-2">
                   <Icon className="w-4 h-4" />
                   {category.label}
                 </TabsTrigger>
@@ -253,55 +245,45 @@ const ARV = () => {
             })}
           </TabsList>
 
-          {categories.map((category) => (
+          {categories.map(category => (
             <TabsContent key={category.id} value={category.id}>
-              {/* Stats Cards */}
+              
+              {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <Target className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-foreground">200+</div>
-                    <div className="text-sm text-muted-foreground">Questions</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <BookOpen className="w-8 h-8 text-success mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-foreground">{topics[category.id as keyof typeof topics].length}</div>
-                    <div className="text-sm text-muted-foreground">Topics</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <Clock className="w-8 h-8 text-warning mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-foreground">2-15</div>
-                    <div className="text-sm text-muted-foreground">Minutes</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <Users className="w-8 h-8 text-hard mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-foreground">3000+</div>
-                    <div className="text-sm text-muted-foreground">Attempts</div>
-                  </CardContent>
-                </Card>
+                {[
+                  { icon: Target, value: "200+", label: "Questions" },
+                  { icon: BookOpen, value: topics[category.id as keyof typeof topics].length, label: "Topics" },
+                  { icon: Clock, value: "2-15", label: "Minutes" },
+                  { icon: Users, value: "3000+", label: "Attempts" },
+                ].map((item, i) => {
+                  const Icon = item.icon;
+                  return (
+                    <Card key={i} className="flex items-center justify-center h-40">
+                      <CardContent className="flex flex-col items-center justify-center text-center h-full p-6">
+                        <Icon className="w-8 h-8 text-primary mb-3" />
+                        <div className="text-2xl font-bold text-foreground">{item.value}</div>
+                        <div className="text-sm text-muted-foreground">{item.label}</div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
 
               {/* Topics Grid */}
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-foreground mb-6">
-                  {category.label} Topics
-                </h2>
+              <div className="mb-12">
+                <h2 className="text-2xl font-bold text-foreground mb-6 text-center">{category.label} Topics</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {topics[category.id as keyof typeof topics].map((topic) => (
-                    <Card key={topic} className="cursor-pointer transition-all duration-200 hover:shadow-elevated hover:-translate-y-1">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm font-medium text-foreground">{topic}</div>
-                          <Badge variant="outline">
-                            {Math.floor(Math.random() * 50) + 10} Q's
-                          </Badge>
-                        </div>
+                  {topics[category.id as keyof typeof topics].map(topic => (
+                    <Card
+                      key={topic}
+                      className={`cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1 flex items-center justify-center h-28 ${
+                        selectedTopic === topic ? "ring-2 ring-primary shadow-md" : ""
+                      }`}
+                      onClick={() => setSelectedTopic(selectedTopic === topic ? null : topic)}
+                    >
+                      <CardContent className="flex items-center justify-center text-center h-full p-4">
+                        <div className="text-sm font-medium text-foreground">{topic}</div>
+                        <Badge variant="outline" className="ml-2">{Math.floor(Math.random() * 50) + 10} Q's</Badge>
                       </CardContent>
                     </Card>
                   ))}
@@ -312,7 +294,7 @@ const ARV = () => {
         </Tabs>
 
         {/* Difficulty Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
           <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
             <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Select Difficulty" />
@@ -324,59 +306,52 @@ const ARV = () => {
               <SelectItem value="hard">Hard</SelectItem>
             </SelectContent>
           </Select>
-
-          <Button onClick={() => setSelectedDifficulty("all")}>
-            Clear Filter
-          </Button>
+          <Button onClick={() => setSelectedDifficulty("all")}>Clear Filter</Button>
         </div>
 
         {/* Problems List */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-foreground mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
             Practice Questions ({filteredProblems.length})
           </h2>
-          
-          {filteredProblems.map((problem) => (
-            <Card key={problem.id} className="hover:shadow-elevated transition-all duration-200">
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-foreground">{problem.title}</h3>
-                      <Badge variant={getDifficultyVariant(problem.difficulty) as 'easy' | 'medium' | 'hard' | 'default'}>
-                        {problem.difficulty}
-                      </Badge>
-                      <Badge variant="outline">{problem.topic}</Badge>
+
+          <div className="space-y-4">
+            {filteredProblems.map(problem => (
+              <Card key={problem.id} className="hover:shadow-md transition-all duration-200">
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex-1 text-center md:text-left">
+                      <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
+                        <h3 className="text-lg font-semibold text-foreground">{problem.title}</h3>
+                        <Badge variant={getDifficultyVariant(problem.difficulty) as 'easy' | 'medium' | 'hard' | 'default'}>{problem.difficulty}</Badge>
+                        <Badge variant="outline">{problem.topic}</Badge>
+                      </div>
+                      <p className="text-muted-foreground mb-2">{problem.description}</p>
+                      <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{problem.time}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          <span>{problem.solved} attempted</span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-muted-foreground mb-2">{problem.description}</p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        <span>{problem.time}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>{problem.solved} attempted</span>
-                      </div>
+                    <div className="flex justify-center md:justify-end">
+                      <Button size="sm" onClick={() => handlePracticeStart(problem)}>Practice Now</Button>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button 
-                      size="sm"
-                      onClick={() => handlePracticeStart(problem)}
-                    >
-                      Practice Now
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
-      
+
+      {/* Practice Mode Modal */}
       {practiceMode && (
-        <ARVPractice 
+        <ARVPractice
           problem={practiceMode}
           onComplete={handlePracticeComplete}
           onClose={() => setPracticeMode(null)}

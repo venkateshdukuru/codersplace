@@ -1,5 +1,5 @@
 // frontend/src/components/auth/SignUp.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import Navigation from "@/components/Navigation";
-import Footer from "../Footer";
+import Footer from "../footer";
 import { OTPVerification } from "./OTPVerification";
 import { authService } from "@/services/authService";
 import { 
@@ -25,7 +25,6 @@ import {
   ArrowLeft
 } from "lucide-react";
 
-
 export const SignUp = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -34,13 +33,16 @@ export const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [step, setStep] = useState<'register' | 'verify'>('register');
   const [registrationEmail, setRegistrationEmail] = useState('');
-  
+  const [passwordStrength, setPasswordStrength] = useState<string>("");
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
   const [signupData, setSignupData] = useState({
     name: "",
     email: "",
     collegeName: "",
     branch: "",
     rollNumber: "",
+    mobile: "",
     password: "",
     confirmPassword: ""
   });
@@ -48,31 +50,63 @@ export const SignUp = () => {
   const { toast } = useToast();
   const { verifyAndCompleteRegistration } = useAuth();
 
+  // --- Validation Helpers ---
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const validateMobile = (mobile: string) => {
+    const regex = /^[0-9]{10}$/;
+    return regex.test(mobile);
+  };
+
+  const evaluatePasswordStrength = (password: string) => {
+    let strength = "Weak";
+    if (password.length >= 8) {
+      const hasUpper = /[A-Z]/.test(password);
+      const hasLower = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      const score = [hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
+
+      if (score >= 3) strength = "Strong";
+      else if (score === 2) strength = "Medium";
+      else strength = "Weak";
+    } else {
+      strength = "Weak";
+    }
+    setPasswordStrength(strength);
+  };
+
+  useEffect(() => {
+    evaluatePasswordStrength(signupData.password);
+  }, [signupData.password]);
+
   const handleInitiateRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!agreedToTerms) {
-      toast({
-        title: "Error",
-        description: "Please agree to the Terms & Conditions",
-        variant: "destructive"
-      });
-      return;
-    }
 
-    if (signupData.password !== signupData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords don't match",
-        variant: "destructive"
-      });
-      return;
-    }
+    const errors: Record<string, string> = {};
 
-    if (signupData.password.length < 8) {
+    if (!signupData.name.trim()) errors.name = "Full name is required";
+    if (!validateEmail(signupData.email)) errors.email = "Enter a valid email address";
+    if (!signupData.collegeName.trim()) errors.collegeName = "College name is required";
+    if (!signupData.branch.trim()) errors.branch = "Branch is required";
+    if (!signupData.rollNumber.trim()) errors.rollNumber = "Roll number is required";
+    if (!validateMobile(signupData.mobile)) errors.mobile = "Mobile number must be 10 digits";
+    if (signupData.password.length < 8)
+      errors.password = "Password must be at least 8 characters long";
+    if (signupData.password !== signupData.confirmPassword)
+      errors.confirmPassword = "Passwords do not match";
+    if (!agreedToTerms)
+      errors.terms = "You must agree to the Terms & Conditions";
+
+    setValidationErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
       toast({
-        title: "Error",
-        description: "Password must be at least 8 characters long",
+        title: "Validation Error",
+        description: "Please fix the highlighted fields.",
         variant: "destructive"
       });
       return;
@@ -87,9 +121,10 @@ export const SignUp = () => {
         collegeName: signupData.collegeName,
         branch: signupData.branch,
         rollNumber: signupData.rollNumber,
+        mobile: signupData.mobile,
         password: signupData.password
       });
-      
+
       if (response.success) {
         setRegistrationEmail(signupData.email);
         setStep('verify');
@@ -118,12 +153,12 @@ export const SignUp = () => {
         email: registrationEmail,
         otp
       });
-      
+
       toast({
         title: "Account Created!",
         description: `Welcome ${signupData.name}! Your account has been verified.`,
       });
-      
+
       navigate('/');
     } catch (error: any) {
       toast({
@@ -140,7 +175,7 @@ export const SignUp = () => {
     setIsLoading(true);
     try {
       const response = await authService.resendOTP({ email: registrationEmail });
-      
+
       if (response.success) {
         toast({
           title: "OTP Resent",
@@ -168,7 +203,7 @@ export const SignUp = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <Navigation />
-      
+
       <div className="flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-2xl">
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
@@ -184,7 +219,6 @@ export const SignUp = () => {
 
             {step === 'register' ? (
               <>
-                {/* Header */}
                 <div className="text-center">
                   <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
                     Create your account
@@ -194,7 +228,6 @@ export const SignUp = () => {
                   </p>
                 </div>
 
-                {/* Registration Form */}
                 <form onSubmit={handleInitiateRegistration} className="space-y-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Name */}
@@ -215,6 +248,7 @@ export const SignUp = () => {
                           className="pl-10 h-11"
                         />
                       </div>
+                      {validationErrors.name && <p className="text-red-500 text-xs">{validationErrors.name}</p>}
                     </div>
 
                     {/* Email */}
@@ -233,6 +267,7 @@ export const SignUp = () => {
                           className="pl-10 h-11"
                         />
                       </div>
+                      {validationErrors.email && <p className="text-red-500 text-xs">{validationErrors.email}</p>}
                     </div>
 
                     {/* College */}
@@ -250,6 +285,7 @@ export const SignUp = () => {
                           className="pl-10 h-11"
                         />
                       </div>
+                      {validationErrors.collegeName && <p className="text-red-500 text-xs">{validationErrors.collegeName}</p>}
                     </div>
 
                     {/* Branch */}
@@ -267,10 +303,11 @@ export const SignUp = () => {
                           className="pl-10 h-11"
                         />
                       </div>
+                      {validationErrors.branch && <p className="text-red-500 text-xs">{validationErrors.branch}</p>}
                     </div>
 
                     {/* Roll Number */}
-                    <div className="space-y-2 sm:col-span-2">
+                    <div className="space-y-2">
                       <Label htmlFor="roll">Roll Number</Label>
                       <div className="relative">
                         <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -284,6 +321,30 @@ export const SignUp = () => {
                           className="pl-10 h-11"
                         />
                       </div>
+                      {validationErrors.rollNumber && <p className="text-red-500 text-xs">{validationErrors.rollNumber}</p>}
+                    </div>
+
+                    {/* Mobile */}
+                    <div className="space-y-2 sm:col-span-2">
+                      <Label htmlFor="mobile">Mobile Number</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <Input
+                          id="mobile"
+                          type="tel"
+                          value={signupData.mobile}
+                          onChange={(e) => {
+                            const digitsOnly = e.target.value.replace(/[^0-9]/g, "");
+                            setSignupData(prev => ({ ...prev, mobile: digitsOnly }));
+                          }}
+                          placeholder="10-digit mobile number"
+                          required
+                          maxLength={10}
+                          disabled={isLoading}
+                          className="pl-10 h-11"
+                        />
+                      </div>
+                      {validationErrors.mobile && <p className="text-red-500 text-xs">{validationErrors.mobile}</p>}
                     </div>
                   </div>
 
@@ -312,6 +373,18 @@ export const SignUp = () => {
                           {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                       </div>
+                      <p
+                        className={`text-xs mt-1 ${
+                          passwordStrength === "Strong"
+                            ? "text-green-600"
+                            : passwordStrength === "Medium"
+                            ? "text-yellow-600"
+                            : "text-red-500"
+                        }`}
+                      >
+                        Strength: {passwordStrength}
+                      </p>
+                      {validationErrors.password && <p className="text-red-500 text-xs">{validationErrors.password}</p>}
                     </div>
 
                     <div className="space-y-2">
@@ -337,49 +410,51 @@ export const SignUp = () => {
                           {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                       </div>
+                      {validationErrors.confirmPassword && (
+                        <p className="text-red-500 text-xs">{validationErrors.confirmPassword}</p>
+                      )}
                     </div>
                   </div>
 
                   {/* Terms & Conditions */}
-                  {/* Terms & Conditions */}
-<div className="flex items-start space-x-3">
-  <Checkbox
-    id="terms"
-    checked={agreedToTerms}
-    onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
-    className="mt-1"
-  />
-  <Label 
-    htmlFor="terms" 
-    className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer"
-  >
-    I agree to the{" "}
-    <Link
-      to="/terms"
-      className="text-purple-600 hover:underline"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Terms & Conditions
-    </Link>{" "}
-    and{" "}
-    <Link
-      to="/privacy-policy"
-      className="text-purple-600 hover:underline"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      Privacy Policy
-    </Link>
-  </Label>
-</div>
-
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="terms"
+                      checked={agreedToTerms}
+                      onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                      className="mt-1"
+                    />
+                    <Label 
+                      htmlFor="terms" 
+                      className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer"
+                    >
+                      I agree to the{" "}
+                      <Link
+                        to="/terms"
+                        className="text-purple-600 hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Terms & Conditions
+                      </Link>{" "}
+                      and{" "}
+                      <Link
+                        to="/privacy-policy"
+                        className="text-purple-600 hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Privacy Policy
+                      </Link>
+                    </Label>
+                  </div>
+                  {validationErrors.terms && <p className="text-red-500 text-xs">{validationErrors.terms}</p>}
 
                   {/* Submit Button */}
                   <Button 
                     type="submit" 
                     className="w-full h-11 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium transition-all"
-                    disabled={isLoading || !agreedToTerms}
+                    disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
@@ -416,7 +491,7 @@ export const SignUp = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="mt-10">
         <Footer />
       </div>

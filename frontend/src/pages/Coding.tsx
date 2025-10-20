@@ -3640,56 +3640,53 @@ Constraints:
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Target className="w-8 h-8 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">500+</div>
-              <div className="text-sm text-muted-foreground">Problems</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Code className="w-8 h-8 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">12</div>
-              <div className="text-sm text-muted-foreground">Topics</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Clock className="w-8 h-8 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">15-60</div>
-              <div className="text-sm text-muted-foreground">Minutes</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <Users className="w-8 h-8 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-foreground">5000+</div>
-              <div className="text-sm text-muted-foreground">Solved</div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Stats Cards */}
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  {[
+    { icon: Target, value: "500+", label: "Problems" },
+    { icon: Code, value: "12", label: "Topics" },
+    { icon: Clock, value: "15-60", label: "Minutes" },
+    { icon: Users, value: "5000+", label: "Solved" },
+  ].map((item, i) => {
+    const Icon = item.icon;
+    return (
+      <Card
+        key={i}
+        className="flex items-center justify-center h-40" // ✅ Fixed height for balance
+      >
+        <CardContent className="flex flex-col items-center justify-center text-center p-6 h-full">
+          <Icon className="w-8 h-8 text-primary mb-3" />
+          <div className="text-2xl font-bold text-foreground">{item.value}</div>
+          <div className="text-sm text-muted-foreground">{item.label}</div>
+        </CardContent>
+      </Card>
+    );
+  })}
+</div>
 
-        {/* Topics Grid */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Choose Your Topic</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {topics.map((topic) => (
-              <Card
-                key={topic}
-                className={`cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1 ${
-                  selectedTopic === topic ? "ring-2 ring-primary shadow-md" : ""
-                }`}
-                onClick={() => setSelectedTopic(topic)}
-              >
-                <CardContent className="p-4 text-center">
-                  <div className="text-sm font-medium text-foreground">{topic}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+{/* Topics Grid */}
+<div className="mb-8">
+  <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
+    Choose Your Topic
+  </h2>
+  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    {topics.map((topic) => (
+      <Card
+        key={topic}
+        className={`cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1 ${
+          selectedTopic === topic ? "ring-2 ring-primary shadow-md" : ""
+        } flex items-center justify-center h-28`} // ✅ Centered + equal height
+        onClick={() => setSelectedTopic(topic)}
+      >
+        <CardContent className="flex items-center justify-center text-center p-4 h-full">
+          <div className="text-sm font-medium text-foreground">{topic}</div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+</div>
+
+
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">

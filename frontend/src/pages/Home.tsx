@@ -98,6 +98,7 @@ const Home = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [statsInView, setStatsInView] = useState(false);
   const [sectionsInView, setSectionsInView] = useState({});
+  const [cardsInView, setCardsInView] = useState({});
   const location = useLocation();
 
   // Scroll to top when component mounts or location changes
@@ -108,28 +109,37 @@ const Home = () => {
   useEffect(() => {
     setIsVisible(true);
     
-    // Set up intersection observers for animations
+    // Intersection Observer options
     const observerOptions = {
       threshold: 0.2,
       rootMargin: '0px 0px -50px 0px'
     };
 
+    // Stats observer
     const statsObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setStatsInView(true);
-        }
+        setStatsInView(entry.isIntersecting);
       });
     }, observerOptions);
 
+    // Section observer (fixed)
     const sectionObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setSectionsInView(prev => ({
-            ...prev,
-            [entry.target.id]: true
-          }));
-        }
+        // Always update whether visible or not
+        setSectionsInView(prev => ({
+          ...prev,
+          [entry.target.id]: entry.isIntersecting
+        }));
+      });
+    }, observerOptions);
+
+    // Card observer (if needed for inner card animations)
+    const cardObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        setCardsInView(prev => ({
+          ...prev,
+          [entry.target.id]: entry.isIntersecting
+        }));
       });
     }, observerOptions);
 
@@ -139,17 +149,26 @@ const Home = () => {
       statsObserver.observe(statsSection);
     }
 
-    // Observe other sections
+    // Observe all animated sections
     const sections = document.querySelectorAll('.animate-section');
     sections.forEach(section => {
       sectionObserver.observe(section);
     });
 
+    // Observe animated cards (optional)
+    const cards = document.querySelectorAll('.animate-card');
+    cards.forEach(card => {
+      cardObserver.observe(card);
+    });
+
+    // Cleanup on unmount
     return () => {
       statsObserver.disconnect();
       sectionObserver.disconnect();
+      cardObserver.disconnect();
     };
   }, []);
+
 
   // Auto-slide testimonials
   useEffect(() => {
@@ -406,50 +425,64 @@ const Home = () => {
 
       {/* Why CodersPlace Section - Simplified */}
       <section id="why-section" className="py-20 bg-gray-50 animate-section">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`text-center mb-12 transition-all duration-1000 transform ${
-            sectionsInView['why-section'] ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Why <span className="text-indigo-600">CodersPlace?</span>
-            </h2>
-            <p className="text-lg text-gray-600">
-              Everything you need to excel in placements and competitive programming
-            </p>
-          </div>
+  <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    {/* Section Heading */}
+    <div
+      className={`text-center mb-12 transition-all duration-1000 transform ${
+        sectionsInView["why-section"]
+          ? "translate-y-0 opacity-100"
+          : "translate-y-10 opacity-0"
+      }`}
+    >
+      <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+        Why <span className="text-indigo-600">CodersPlace?</span>
+      </h2>
+      <p className="text-lg text-gray-600">
+        Everything you need to excel in placements and competitive programming
+      </p>
+    </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {whyFeatures.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <Card 
-                  key={index} 
-                  className={`border-2 border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all bg-white ${
-                    sectionsInView['why-section'] 
-                      ? 'translate-y-0 opacity-100' 
-                      : 'translate-y-10 opacity-0'
-                  }`}
-                  style={{
-                    transitionDelay: sectionsInView['why-section'] ? `${index * 100}ms` : '0ms'
-                  }}
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-6 h-6 text-indigo-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900 mb-2 text-base">{feature.title}</h3>
-                        <p className="text-sm text-gray-600 leading-relaxed">{feature.desc}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+    {/* Features Grid */}
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {whyFeatures.map((feature, index) => {
+        const Icon = feature.icon;
+        return (
+          <Card
+            key={index}
+            className={`border-2 border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all bg-white rounded-xl flex items-center ${
+              sectionsInView["why-section"]
+                ? "translate-y-0 opacity-100"
+                : "translate-y-10 opacity-0"
+            }`}
+            style={{
+              transitionDelay: sectionsInView["why-section"]
+                ? `${index * 100}ms`
+                : "0ms",
+              minHeight: "180px", // ensures card height consistency
+            }}
+          >
+            <CardContent className="flex items-center p-6 w-full">
+              <div className="flex items-center space-x-4 w-full">
+                <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-6 h-6 text-indigo-600" />
+                </div>
+                <div className="flex flex-col justify-center">
+                  <h3 className="font-bold text-gray-900 mb-1 text-base">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
 
       {/* Main Feature Sections - Number animation removed */}
       <section className="py-20 bg-white">

@@ -182,7 +182,7 @@ const Profile = () => {
             </div>
 
             {/* Edit Profile Button */}
-            <Button className="bg-white text-indigo-600 hover:bg-blue-50 font-semibold">
+            <Button className=" text-indigo-600 hover:bg-blue-50 font-semibold">
               <Edit className="w-4 h-4 mr-2" />
               Edit Profile
             </Button>
