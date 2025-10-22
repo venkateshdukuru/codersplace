@@ -1,29 +1,45 @@
+// backend/src/routes/weeklyTestRoutes.ts
+
 import express, { RequestHandler } from "express";
 import {
-  createWeeklyTest,
+  createPublicWeeklyTest,
+  createCollegeWeeklyTest,
   updateWeeklyTest,
   deleteWeeklyTest,
   getWeeklyTests,
   submitWeeklyTest,
 } from "../controllers/weeklyTestController";
-import { protect, superadminOnly } from "../middleware/authMiddleware";
-import { weeklyTestValidation } from "../middleware/validationMiddleware";
+import { protect, superadminOnly, facultyOrSuperadmin } from "../middleware/authMiddleware";
+import {
+  publicWeeklyTestValidation,
+  collegeWeeklyTestValidation,
+} from "../middleware/validationMiddleware";
 
 const router = express.Router();
 
+// PUBLIC WEEKLY TEST ROUTES
 router.post(
-  "/",
+  "/public",
   protect,
   superadminOnly,
-  weeklyTestValidation,
-  createWeeklyTest as RequestHandler
+  publicWeeklyTestValidation,
+  createPublicWeeklyTest as RequestHandler
 );
 
+// COLLEGE-SPECIFIC WEEKLY TEST ROUTES
+router.post(
+  "/college",
+  protect,
+  facultyOrSuperadmin,
+  collegeWeeklyTestValidation,
+  createCollegeWeeklyTest as RequestHandler
+);
+
+// UPDATE & DELETE
 router.put(
   "/:testId",
   protect,
   superadminOnly,
-  weeklyTestValidation,
   updateWeeklyTest as RequestHandler
 );
 
@@ -34,8 +50,10 @@ router.delete(
   deleteWeeklyTest as RequestHandler
 );
 
+// GET ALL WEEKLY TESTS
 router.get("/", protect, getWeeklyTests as RequestHandler);
 
+// SUBMIT WEEKLY TEST
 router.post(
   "/:testId/submit",
   protect,

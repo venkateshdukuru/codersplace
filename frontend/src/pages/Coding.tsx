@@ -1,56 +1,86 @@
-
-"use client"
+"use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Code, Clock, Users, Target, X, Play, CheckCircle, BookOpen, Lightbulb, Terminal, Settings, History, Lock } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import {
+  Code,
+  Clock,
+  Users,
+  Target,
+  X,
+  Play,
+  CheckCircle,
+  BookOpen,
+  Lightbulb,
+  Terminal,
+  Settings,
+  History,
+  Lock,
+} from "lucide-react";
+// import { useAuth } from "@/context/AuthContext";
 import { SolutionsViewer } from "@/components/coding/SolutionsViewer";
 import { useNavigate } from "react-router-dom";
 
 interface Problem {
-  id: number
-  title: string
-  difficulty: string
-  topic: string
-  description: string
-  problemStatement: string
-  time: string
-  solved: number
+  id: number;
+  title: string;
+  difficulty: string;
+  topic: string;
+  description: string;
+  problemStatement: string;
+  time: string;
+  solved: number;
 }
 
 interface QuestionData {
-  description: string
+  description: string;
   examples: {
-    input: string
-    output: string
-    explanation: string
-  }[]
-  constraints: string[]
-  hints: string[]
-  approach: string
-  timeComplexity: string
-  spaceComplexity: string
+    input: string;
+    output: string;
+    explanation: string;
+  }[];
+  constraints: string[];
+  hints: string[];
+  approach: string;
+  timeComplexity: string;
+  spaceComplexity: string;
   testCases: {
-    input: string
-    output: string
-  }[]
+    input: string;
+    output: string;
+  }[];
 }
 
 const Coding = () => {
-  const navigate = useNavigate()
-  const { isAuthenticated } = useAuth();
-  const [selectedTopic, setSelectedTopic] = useState("all")
-  const [selectedDifficulty, setSelectedDifficulty] = useState("all")
+  const navigate = useNavigate();
+  // const { isAuthenticated } = useAuth();
+  const [selectedTopic, setSelectedTopic] = useState("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("all");
   const [isSolutionsViewerOpen, setIsSolutionsViewerOpen] = useState(false);
-
 
   const topics = [
     "Arrays",
@@ -71,7 +101,7 @@ const Coding = () => {
     "Greedy",
     "Union Find",
     "Intervals",
-  ]
+  ];
 
   const problems = [
     // Arrays
@@ -203,7 +233,8 @@ Follow up: Can you solve the problem in O(1) extra space complexity? (The output
       title: "Maximum Subarray",
       difficulty: "medium",
       topic: "Arrays",
-      description: "Given an integer array nums, find the subarray with the largest sum, and return its sum.",
+      description:
+        "Given an integer array nums, find the subarray with the largest sum, and return its sum.",
       problemStatement: `Given an integer array nums, find the subarray with the largest sum, and return its sum.
 
 Example 1:
@@ -403,7 +434,8 @@ Constraints:
       title: "Reverse Linked List",
       difficulty: "easy",
       topic: "Linked Lists",
-      description: "Given the head of a singly linked list, reverse the list, and return the reversed list.",
+      description:
+        "Given the head of a singly linked list, reverse the list, and return the reversed list.",
       problemStatement: `Given the head of a singly linked list, reverse the list, and return the reversed list.
 
 Example 1:
@@ -431,7 +463,8 @@ Follow up: A linked list can be reversed either iteratively or recursively. Coul
       title: "Linked List Cycle",
       difficulty: "easy",
       topic: "Linked Lists",
-      description: "Given head, the head of a linked list, determine if the linked list has a cycle in it.",
+      description:
+        "Given head, the head of a linked list, determine if the linked list has a cycle in it.",
       problemStatement: `Given head, the head of a linked list, determine if the linked list has a cycle in it.
 
 There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the next pointer. Internally, pos is used to denote the index of the node that tail's next pointer is connected to. Note that pos is not passed as a parameter.
@@ -499,7 +532,8 @@ Constraints:
       title: "Remove Nth Node From End",
       difficulty: "medium",
       topic: "Linked Lists",
-      description: "Given the head of a linked list, remove the nth node from the end of the list and return its head.",
+      description:
+        "Given the head of a linked list, remove the nth node from the end of the list and return its head.",
       problemStatement: `Given the head of a linked list, remove the nth node from the end of the list and return its head.
 
 Example 1:
@@ -656,7 +690,8 @@ Constraints:
       title: "Invert Binary Tree",
       difficulty: "easy",
       topic: "Trees",
-      description: "Given the root of a binary tree, invert the tree, and return its root.",
+      description:
+        "Given the root of a binary tree, invert the tree, and return its root.",
       problemStatement: `Given the root of a binary tree, invert the tree, and return its root.
 
 Example 1:
@@ -682,7 +717,8 @@ Constraints:
       title: "Binary Tree Level Order Traversal",
       difficulty: "medium",
       topic: "Trees",
-      description: "Given the root of a binary tree, return the level order traversal of its nodes' values.",
+      description:
+        "Given the root of a binary tree, return the level order traversal of its nodes' values.",
       problemStatement: `Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).
 
 Example 1:
@@ -708,7 +744,8 @@ Constraints:
       title: "Binary Tree Inorder Traversal",
       difficulty: "medium",
       topic: "Trees",
-      description: "Given the root of a binary tree, return the inorder traversal of its nodes' values.",
+      description:
+        "Given the root of a binary tree, return the inorder traversal of its nodes' values.",
       problemStatement: `Given the root of a binary tree, return the inorder traversal of its nodes' values.
 
 Example 1:
@@ -736,7 +773,8 @@ Follow up: Recursive solution is trivial, could you do it iteratively?`,
       title: "Validate Binary Search Tree",
       difficulty: "medium",
       topic: "Trees",
-      description: "Given the root of a binary tree, determine if it is a valid binary search tree (BST).",
+      description:
+        "Given the root of a binary tree, determine if it is a valid binary search tree (BST).",
       problemStatement: `Given the root of a binary tree, determine if it is a valid binary search tree (BST).
 
 A valid BST is defined as follows:
@@ -888,7 +926,8 @@ Constraints:
       title: "Min Stack",
       difficulty: "easy",
       topic: "Stack",
-      description: "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.",
+      description:
+        "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.",
       problemStatement: `Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
 
 Implement the MinStack class:
@@ -1117,7 +1156,8 @@ Constraints:
       title: "Longest Increasing Subsequence",
       difficulty: "medium",
       topic: "Dynamic Programming",
-      description: "Given an integer array nums, return the length of the longest strictly increasing subsequence.",
+      description:
+        "Given an integer array nums, return the length of the longest strictly increasing subsequence.",
       problemStatement: `Given an integer array nums, return the length of the longest strictly increasing subsequence.
 
 Example 1:
@@ -1692,7 +1732,8 @@ Constraints:
       title: "Top K Frequent Elements",
       difficulty: "medium",
       topic: "Heap",
-      description: "Given an integer array nums and an integer k, return the k most frequent elements.",
+      description:
+        "Given an integer array nums and an integer k, return the k most frequent elements.",
       problemStatement: `Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.
 
 Example 1:
@@ -1800,7 +1841,8 @@ Constraints:
       title: "Word Search II",
       difficulty: "hard",
       topic: "Trie",
-      description: "Given an m x n board of characters and a list of strings words, return all words on the board.",
+      description:
+        "Given an m x n board of characters and a list of strings words, return all words on the board.",
       problemStatement: `Given an m x n board of characters and a list of strings words, return all words on the board.
 
 Each word must be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once in a word.
@@ -1832,7 +1874,8 @@ Constraints:
       title: "Subsets",
       difficulty: "medium",
       topic: "Backtracking",
-      description: "Given an integer array nums of unique elements, return all possible subsets (the power set).",
+      description:
+        "Given an integer array nums of unique elements, return all possible subsets (the power set).",
       problemStatement: `Given an integer array nums of unique elements, return all possible subsets (the power set).
 
 The solution set must not contain duplicate subsets. Return the solution in any order.
@@ -1894,7 +1937,8 @@ Constraints:
       title: "Permutations",
       difficulty: "medium",
       topic: "Backtracking",
-      description: "Given an array nums of distinct integers, return all the possible permutations.",
+      description:
+        "Given an array nums of distinct integers, return all the possible permutations.",
       problemStatement: `Given an array nums of distinct integers, return all the possible permutations. You can return the answer in any order.
 
 Example 1:
@@ -1959,7 +2003,8 @@ Constraints:
       title: "Palindrome Partitioning",
       difficulty: "medium",
       topic: "Backtracking",
-      description: "Given a string s, partition s such that every substring of the partition is a palindrome.",
+      description:
+        "Given a string s, partition s such that every substring of the partition is a palindrome.",
       problemStatement: `Given a string s, partition s such that every substring of the partition is a palindrome. Return all possible palindrome partitioning of s.
 
 Example 1:
@@ -2012,7 +2057,8 @@ Constraints:
       title: "Word Search",
       difficulty: "medium",
       topic: "Backtracking",
-      description: "Given an m x n grid of characters board and a string word, return true if word exists in the grid.",
+      description:
+        "Given an m x n grid of characters board and a string word, return true if word exists in the grid.",
       problemStatement: `Given an m x n grid of characters board and a string word, return true if word exists in the grid.
 
 The word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.
@@ -2176,7 +2222,8 @@ Constraints:
       title: "Search a 2D Matrix",
       difficulty: "medium",
       topic: "Binary Search",
-      description: "You are given an m x n integer matrix matrix with the following two properties:",
+      description:
+        "You are given an m x n integer matrix matrix with the following two properties:",
       problemStatement: `You are given an m x n integer matrix matrix with the following two properties:
 
 • Each row is sorted in non-decreasing order.
@@ -2376,7 +2423,8 @@ Constraints:
       title: "Best Time to Buy and Sell Stock",
       difficulty: "easy",
       topic: "Sliding Window",
-      description: "You are given an array prices where prices[i] is the price of a given stock on the ith day.",
+      description:
+        "You are given an array prices where prices[i] is the price of a given stock on the ith day.",
       problemStatement: `You are given an array prices where prices[i] is the price of a given stock on the ith day.
 
 You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.
@@ -2405,7 +2453,8 @@ Constraints:
       title: "Longest Substring Without Repeating",
       difficulty: "medium",
       topic: "Sliding Window",
-      description: "Given a string s, find the length of the longest substring without repeating characters.",
+      description:
+        "Given a string s, find the length of the longest substring without repeating characters.",
       problemStatement: `Given a string s, find the length of the longest substring without repeating characters.
 
 Example 1:
@@ -2539,7 +2588,8 @@ Constraints:
       title: "Reverse String",
       difficulty: "easy",
       topic: "String Manipulation",
-      description: "Write a function that reverses a string. The input string is given as an array of characters s.",
+      description:
+        "Write a function that reverses a string. The input string is given as an array of characters s.",
       problemStatement: `Write a function that reverses a string. The input string is given as an array of characters s.
 
 You must do this by modifying the input array in-place with O(1) extra memory.
@@ -2590,7 +2640,8 @@ Constraints:
       title: "Valid Anagram",
       difficulty: "easy",
       topic: "String Manipulation",
-      description: "Given two strings s and t, return true if t is an anagram of s, and false otherwise.",
+      description:
+        "Given two strings s and t, return true if t is an anagram of s, and false otherwise.",
       problemStatement: `Given two strings s and t, return true if t is an anagram of s, and false otherwise.
 
 An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
@@ -2646,7 +2697,8 @@ Constraints:
       title: "Longest Palindromic Substring",
       difficulty: "medium",
       topic: "String Manipulation",
-      description: "Given a string s, return the longest palindromic substring in s.",
+      description:
+        "Given a string s, return the longest palindromic substring in s.",
       problemStatement: `Given a string s, return the longest palindromic substring in s.
 
 Example 1:
@@ -2743,7 +2795,8 @@ Constraints:
       title: "Pow(x, n)",
       difficulty: "medium",
       topic: "Math",
-      description: "Implement pow(x, n), which calculates x raised to the power n (i.e., x^n).",
+      description:
+        "Implement pow(x, n), which calculates x raised to the power n (i.e., x^n).",
       problemStatement: `Implement pow(x, n), which calculates x raised to the power n (i.e., x^n).
 
 Example 1:
@@ -2773,7 +2826,8 @@ Constraints:
       title: "Sqrt(x)",
       difficulty: "easy",
       topic: "Math",
-      description: "Given a non-negative integer x, return the square root of x rounded down to the nearest integer.",
+      description:
+        "Given a non-negative integer x, return the square root of x rounded down to the nearest integer.",
       problemStatement: `Given a non-negative integer x, return the square root of x rounded down to the nearest integer. The returned integer should be non-negative as well.
 
 You must not use any built-in exponent function or operator.
@@ -2800,7 +2854,8 @@ Constraints:
       title: "Reverse Integer",
       difficulty: "medium",
       topic: "Math",
-      description: "Given a signed 32-bit integer x, return x with its digits reversed.",
+      description:
+        "Given a signed 32-bit integer x, return x with its digits reversed.",
       problemStatement: `Given a signed 32-bit integer x, return x with its digits reversed. If reversing x causes the value to go outside the signed 32-bit integer range [-2³¹, 2³¹ - 1], then return 0.
 
 Assume the environment does not allow you to store 64-bit integers (signed or unsigned).
@@ -2996,7 +3051,8 @@ Follow up: If this function is called many times, how would you optimize it?`,
       title: "Maximum Subarray",
       difficulty: "easy",
       topic: "Greedy",
-      description: "Given an integer array nums, find the subarray with the largest sum, and return its sum.",
+      description:
+        "Given an integer array nums, find the subarray with the largest sum, and return its sum.",
       problemStatement: `Given an integer array nums, find the subarray with the largest sum, and return its sum.
 
 Example 1:
@@ -3189,7 +3245,8 @@ Constraints:
       title: "Redundant Connection",
       difficulty: "medium",
       topic: "Union Find",
-      description: "In this problem, a tree is an undirected graph that is connected and has no cycles.",
+      description:
+        "In this problem, a tree is an undirected graph that is connected and has no cycles.",
       problemStatement: `In this problem, a tree is an undirected graph that is connected and has no cycles.
 
 You are given a graph that started as a tree with n nodes labeled from 1 to n, with one additional edge added. The added edge has two different vertices chosen from 1 to n, and was not an edge that already existed. The graph is represented as an array edges of length n where edges[i] = [ai, bi] indicates that there is an edge between nodes ai and bi in the graph.
@@ -3315,64 +3372,97 @@ Constraints:
       time: "30 min",
       solved: 445,
     },
-  ]
+  ];
 
   const filteredProblems = problems.filter((problem) => {
-    const topicMatch = selectedTopic === "all" || problem.topic === selectedTopic
-    const difficultyMatch = selectedDifficulty === "all" || problem.difficulty === selectedDifficulty
-    return topicMatch && difficultyMatch
-  })
+    const topicMatch =
+      selectedTopic === "all" || problem.topic === selectedTopic;
+    const difficultyMatch =
+      selectedDifficulty === "all" || problem.difficulty === selectedDifficulty;
+    return topicMatch && difficultyMatch;
+  });
 
   const getDifficultyVariant = (difficulty: string) => {
     switch (difficulty) {
       case "easy":
-        return "outline"
+        return "outline";
       case "medium":
-        return "outline"
+        return "outline";
       case "hard":
-        return "outline"
+        return "outline";
       default:
-        return "default"
+        return "default";
     }
-  }
+  };
 
   const handleSolveClick = (problem: Problem) => {
     navigate(`/coding/problem/${problem.id}`);
-  }
+  };
 
   const languages = [
-    { id: "javascript", name: "JavaScript", template: "function solve() {\n    // Write your code here\n    return result;\n}" },
-    { id: "python", name: "Python", template: "def solve():\n    # Write your code here\n    return result" },
-    { id: "java", name: "Java", template: "public class Solution {\n    public int solve() {\n        // Write your code here\n        return result;\n    }\n}" },
-    { id: "cpp", name: "C++", template: "#include <iostream>\n#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int solve() {\n        // Write your code here\n        return result;\n    }\n};" },
-    { id: "c", name: "C", template: "#include <stdio.h>\n\nint solve() {\n    // Write your code here\n    return result;\n}" },
-    { id: "sql", name: "SQL", template: "-- Write your SQL query here\nSELECT * FROM table_name;" }
+    {
+      id: "javascript",
+      name: "JavaScript",
+      template:
+        "function solve() {\n    // Write your code here\n    return result;\n}",
+    },
+    {
+      id: "python",
+      name: "Python",
+      template: "def solve():\n    # Write your code here\n    return result",
+    },
+    {
+      id: "java",
+      name: "Java",
+      template:
+        "public class Solution {\n    public int solve() {\n        // Write your code here\n        return result;\n    }\n}",
+    },
+    {
+      id: "cpp",
+      name: "C++",
+      template:
+        "#include <iostream>\n#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int solve() {\n        // Write your code here\n        return result;\n    }\n};",
+    },
+    {
+      id: "c",
+      name: "C",
+      template:
+        "#include <stdio.h>\n\nint solve() {\n    // Write your code here\n    return result;\n}",
+    },
+    {
+      id: "sql",
+      name: "SQL",
+      template: "-- Write your SQL query here\nSELECT * FROM table_name;",
+    },
   ];
 
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
-    const selectedLang = languages.find(lang => lang.id === language);
+    const selectedLang = languages.find((lang) => lang.id === language);
     if (selectedLang) {
       setCode(selectedLang.template);
     }
   };
 
   const handleRunCode = () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated ) {
       setOutput("Please log in to run code and submit solutions.");
       return;
     }
-    
+
     setIsRunning(true);
     // Simulate code execution with sample output
     setTimeout(() => {
-      const sampleOutput = selectedLanguage === 'python' 
-        ? "Hello World\n42\n[1, 2, 3]" 
-        : selectedLanguage === 'java'
-        ? "Hello World\n42"
-        : "Hello World\n42\n[1, 2, 3]";
-      
-      setOutput(`Execution completed:\n\n${sampleOutput}\n\n--- Debug Info ---\nLanguage: ${selectedLanguage}\nExecution time: 1.2s\nMemory used: 15.4 MB`);
+      const sampleOutput =
+        selectedLanguage === "python"
+          ? "Hello World\n42\n[1, 2, 3]"
+          : selectedLanguage === "java"
+          ? "Hello World\n42"
+          : "Hello World\n42\n[1, 2, 3]";
+
+      setOutput(
+        `Execution completed:\n\n${sampleOutput}\n\n--- Debug Info ---\nLanguage: ${selectedLanguage}\nExecution time: 1.2s\nMemory used: 15.4 MB`
+      );
       setIsRunning(false);
     }, 2000);
   };
@@ -3382,46 +3472,53 @@ Constraints:
       setOutput("Please log in to submit solutions.");
       return;
     }
-    
+
     if (!code.trim()) return;
-    
+
     setIsRunning(true);
-    
+
     // Simulate running test cases
     setTimeout(() => {
       if (selectedQuestion) {
         const questionData = getDetailedQuestionData(selectedQuestion);
         const testCases = questionData.testCases || [];
-        
+
         // Simulate test case execution with improved logic
         let passedTests = 0;
         const testResults = [];
-        
+
         // Simulate more realistic test execution based on code quality
-        const codeQuality = code.length > 50 && code.includes('function') || code.includes('def') || code.includes('class') ? 0.8 : 0.4;
-        
+        const codeQuality =
+          (code.length > 50 && code.includes("function")) ||
+          code.includes("def") ||
+          code.includes("class")
+            ? 0.8
+            : 0.4;
+
         for (let i = 0; i < testCases.length; i++) {
           const testCase = testCases[i];
           // Better simulation based on code content
           const passed = Math.random() < codeQuality;
           if (passed) passedTests++;
-          
+
           testResults.push({
             testCase: i + 1,
             input: testCase.input,
             expected: testCase.output,
             actual: passed ? testCase.output : "Wrong output",
-            passed: passed
+            passed: passed,
           });
         }
-        
+
         const allPassed = passedTests === testCases.length;
         const submissionTime = new Date().toISOString();
-        
+
         let output = `🔍 TEST RESULTS\n\n`;
         output += `Passed: ${passedTests}/${testCases.length} test cases\n`;
-        output += `Submission Time: ${new Date(submissionTime).toLocaleString()}\n\n`;
-        
+        output += `Submission Time: ${new Date(
+          submissionTime
+        ).toLocaleString()}\n\n`;
+
         testResults.forEach((result, index) => {
           const status = result.passed ? "✅ PASS" : "❌ FAIL";
           output += `Test Case ${result.testCase}: ${status}\n`;
@@ -3429,7 +3526,7 @@ Constraints:
           output += `Expected: ${result.expected}\n`;
           output += `Your Output: ${result.actual}\n\n`;
         });
-        
+
         // Enhanced solution storage system
         const solution = {
           id: `${selectedQuestion.id}_${Date.now()}`,
@@ -3445,20 +3542,22 @@ Constraints:
           passed: allPassed,
           runtime: `${(Math.random() * 1000 + 100).toFixed(0)}ms`,
           memory: `${(Math.random() * 20 + 10).toFixed(1)} MB`,
-          status: allPassed ? 'Accepted' : 'Failed'
+          status: allPassed ? "Accepted" : "Failed",
         };
-        
+
         // Store in localStorage (will be Supabase database later)
-        const savedSolutions = JSON.parse(localStorage.getItem('codingSolutions') || '[]');
+        const savedSolutions = JSON.parse(
+          localStorage.getItem("codingSolutions") || "[]"
+        );
         savedSolutions.unshift(solution); // Add to beginning
-        
+
         // Keep only last 50 submissions to avoid storage bloat
         if (savedSolutions.length > 50) {
           savedSolutions.splice(50);
         }
-        
-        localStorage.setItem('codingSolutions', JSON.stringify(savedSolutions));
-        
+
+        localStorage.setItem("codingSolutions", JSON.stringify(savedSolutions));
+
         if (allPassed) {
           output += `🎉 CONGRATULATIONS!\n`;
           output += `All test cases passed! Your solution has been saved.\n\n`;
@@ -3470,28 +3569,33 @@ Constraints:
           output += `• Memory: ${solution.memory}\n`;
           output += `• Status: ${solution.status}\n\n`;
           output += `💾 Solution saved to your profile!\n`;
-          
+
           // Also update problem-specific statistics
-          const problemStats = JSON.parse(localStorage.getItem('problemStats') || '{}');
+          const problemStats = JSON.parse(
+            localStorage.getItem("problemStats") || "{}"
+          );
           if (!problemStats[selectedQuestion.id]) {
             problemStats[selectedQuestion.id] = {
               attempts: 0,
               solved: false,
               bestTime: null,
-              languages: []
+              languages: [],
             };
           }
-          
+
           problemStats[selectedQuestion.id].attempts += 1;
           problemStats[selectedQuestion.id].solved = true;
           problemStats[selectedQuestion.id].bestTime = solution.runtime;
-          
-          if (!problemStats[selectedQuestion.id].languages.includes(selectedLanguage)) {
+
+          if (
+            !problemStats[selectedQuestion.id].languages.includes(
+              selectedLanguage
+            )
+          ) {
             problemStats[selectedQuestion.id].languages.push(selectedLanguage);
           }
-          
-          localStorage.setItem('problemStats', JSON.stringify(problemStats));
-          
+
+          localStorage.setItem("problemStats", JSON.stringify(problemStats));
         } else {
           output += `❌ SOLUTION INCOMPLETE\n`;
           output += `${testCases.length - passedTests} test case(s) failed.\n`;
@@ -3505,21 +3609,23 @@ Constraints:
           output += `• Memory: ${solution.memory}\n\n`;
           output += `💾 Attempt saved to your history.\n`;
         }
-        
+
         setOutput(output);
-        
+
         // Store attempt even if failed
-        const problemStats = JSON.parse(localStorage.getItem('problemStats') || '{}');
+        const problemStats = JSON.parse(
+          localStorage.getItem("problemStats") || "{}"
+        );
         if (!problemStats[selectedQuestion.id]) {
           problemStats[selectedQuestion.id] = {
             attempts: 0,
             solved: false,
             bestTime: null,
-            languages: []
+            languages: [],
           };
         }
         problemStats[selectedQuestion.id].attempts += 1;
-        localStorage.setItem('problemStats', JSON.stringify(problemStats));
+        localStorage.setItem("problemStats", JSON.stringify(problemStats));
       }
       setIsRunning(false);
     }, 3000);
@@ -3530,163 +3636,240 @@ Constraints:
     const questionData: Record<number, QuestionData> = {
       // Arrays
       1: {
-        description: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.",
+        description:
+          "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.",
         examples: [
-          { input: "nums = [2,7,11,15], target = 9", output: "[0,1]", explanation: "Because nums[0] + nums[1] == 9, we return [0, 1]." },
-          { input: "nums = [3,2,4], target = 6", output: "[1,2]", explanation: "Because nums[1] + nums[2] == 6, we return [1, 2]." },
-          { input: "nums = [3,3], target = 6", output: "[0,1]", explanation: "Because nums[0] + nums[1] == 6, we return [0, 1]." }
+          {
+            input: "nums = [2,7,11,15], target = 9",
+            output: "[0,1]",
+            explanation: "Because nums[0] + nums[1] == 9, we return [0, 1].",
+          },
+          {
+            input: "nums = [3,2,4], target = 6",
+            output: "[1,2]",
+            explanation: "Because nums[1] + nums[2] == 6, we return [1, 2].",
+          },
+          {
+            input: "nums = [3,3], target = 6",
+            output: "[0,1]",
+            explanation: "Because nums[0] + nums[1] == 6, we return [0, 1].",
+          },
         ],
-        constraints: ["2 ≤ nums.length ≤ 10⁴", "-10⁹ ≤ nums[i] ≤ 10⁹", "-10⁹ ≤ target ≤ 10⁹", "Only one valid answer exists."],
-        hints: ["Use a hash map to store values and their indices", "For each element, check if target - element exists in the map", "Return indices when complement is found"],
+        constraints: [
+          "2 ≤ nums.length ≤ 10⁴",
+          "-10⁹ ≤ nums[i] ≤ 10⁹",
+          "-10⁹ ≤ target ≤ 10⁹",
+          "Only one valid answer exists.",
+        ],
+        hints: [
+          "Use a hash map to store values and their indices",
+          "For each element, check if target - element exists in the map",
+          "Return indices when complement is found",
+        ],
         approach: "Hash Map",
         timeComplexity: "O(n)",
         spaceComplexity: "O(n)",
         testCases: [
           { input: "[2,7,11,15], 9", output: "[0,1]" },
           { input: "[3,2,4], 6", output: "[1,2]" },
-          { input: "[3,3], 6", output: "[0,1]" }
-        ]
+          { input: "[3,3], 6", output: "[0,1]" },
+        ],
       },
       2: {
-        description: "You are given an array prices where prices[i] is the price of a given stock on the ith day. You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock. Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.",
+        description:
+          "You are given an array prices where prices[i] is the price of a given stock on the ith day. You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock. Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.",
         examples: [
-          { input: "prices = [7,1,5,3,6,4]", output: "5", explanation: "Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5." },
-          { input: "prices = [7,6,4,3,1]", output: "0", explanation: "In this case, no transactions are done and the max profit = 0." }
+          {
+            input: "prices = [7,1,5,3,6,4]",
+            output: "5",
+            explanation:
+              "Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.",
+          },
+          {
+            input: "prices = [7,6,4,3,1]",
+            output: "0",
+            explanation:
+              "In this case, no transactions are done and the max profit = 0.",
+          },
         ],
         constraints: ["1 ≤ prices.length ≤ 10⁵", "0 ≤ prices[i] ≤ 10⁴"],
-        hints: ["Keep track of the minimum price seen so far", "Calculate profit for each day", "Track maximum profit achieved"],
+        hints: [
+          "Keep track of the minimum price seen so far",
+          "Calculate profit for each day",
+          "Track maximum profit achieved",
+        ],
         approach: "One Pass",
         timeComplexity: "O(n)",
         spaceComplexity: "O(1)",
         testCases: [
           { input: "[7,1,5,3,6,4]", output: "5" },
           { input: "[7,6,4,3,1]", output: "0" },
-          { input: "[1,2,3,4,5]", output: "4" }
-        ]
+          { input: "[1,2,3,4,5]", output: "4" },
+        ],
       },
       3: {
-        description: "Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.",
+        description:
+          "Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.",
         examples: [
-          { input: "nums = [1,2,3,1]", output: "true", explanation: "The element 1 occurs at indices 0 and 3." },
-          { input: "nums = [1,2,3,4]", output: "false", explanation: "All elements are distinct." },
-          { input: "nums = [1,1,1,3,3,4,3,2,4,2]", output: "true", explanation: "Multiple duplicates exist." }
+          {
+            input: "nums = [1,2,3,1]",
+            output: "true",
+            explanation: "The element 1 occurs at indices 0 and 3.",
+          },
+          {
+            input: "nums = [1,2,3,4]",
+            output: "false",
+            explanation: "All elements are distinct.",
+          },
+          {
+            input: "nums = [1,1,1,3,3,4,3,2,4,2]",
+            output: "true",
+            explanation: "Multiple duplicates exist.",
+          },
         ],
         constraints: ["1 ≤ nums.length ≤ 10⁵", "-10⁹ ≤ nums[i] ≤ 10⁹"],
-        hints: ["Use a set to track seen elements", "Return true immediately when duplicate found", "Consider sorting approach as alternative"],
+        hints: [
+          "Use a set to track seen elements",
+          "Return true immediately when duplicate found",
+          "Consider sorting approach as alternative",
+        ],
         approach: "Hash Set",
         timeComplexity: "O(n)",
         spaceComplexity: "O(n)",
         testCases: [
           { input: "[1,2,3,1]", output: "true" },
-          { input: "[1,2,3,4]", output: "false" }
-        ]
-      }
+          { input: "[1,2,3,4]", output: "false" },
+        ],
+      },
     };
 
     // Generate default data for questions without specific details
     const defaultData = {
-      description: `Solve this ${question.topic.toLowerCase()} problem: ${question.description}`,
+      description: `Solve this ${question.topic.toLowerCase()} problem: ${
+        question.description
+      }`,
       examples: [
-        { input: "Example input will be provided", output: "Expected output", explanation: "Detailed explanation of the solution approach." }
+        {
+          input: "Example input will be provided",
+          output: "Expected output",
+          explanation: "Detailed explanation of the solution approach.",
+        },
       ],
-      constraints: ["Constraints will be specified based on problem requirements"],
-      hints: ["Analyze the problem requirements", "Consider edge cases", "Optimize for time and space complexity"],
+      constraints: [
+        "Constraints will be specified based on problem requirements",
+      ],
+      hints: [
+        "Analyze the problem requirements",
+        "Consider edge cases",
+        "Optimize for time and space complexity",
+      ],
       approach: "Problem-specific approach",
       timeComplexity: "To be determined",
       spaceComplexity: "To be determined",
       testCases: [
         { input: "Test case 1", output: "Expected result 1" },
-        { input: "Test case 2", output: "Expected result 2" }
-      ]
+        { input: "Test case 2", output: "Expected result 2" },
+      ],
     };
 
     return questionData[question.id] || defaultData;
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto text-center">
-          <Card className="p-8">
-            <div className="flex justify-center mb-4">
-              <Lock className="w-16 h-16 text-muted-foreground" />
-            </div>
-            <CardTitle className="text-2xl mb-4">Authentication Required</CardTitle>
-            <CardDescription className="text-lg mb-6">
-              Please log in to access coding problems, run code, and submit solutions.
-            </CardDescription>
-            <Alert>
-              <Lock className="w-4 h-4" />
-              <AlertDescription>
-                Coding practice requires authentication to save your progress and submissions.
-              </AlertDescription>
-            </Alert>
-          </Card>
-        </div>
-      </div>
-    );
-  }
+  // if (!isAuthenticated) {
+  //   return (
+  //     <div className="container mx-auto px-4 py-8">
+  //       <div className="max-w-2xl mx-auto text-center">
+  //         <Card className="p-8">
+  //           <div className="flex justify-center mb-4">
+  //             <Lock className="w-16 h-16 text-muted-foreground" />
+  //           </div>
+  //           <CardTitle className="text-2xl mb-4">
+  //             Authentication Required
+  //           </CardTitle>
+  //           <CardDescription className="text-lg mb-6">
+  //             Please log in to access coding problems, run code, and submit
+  //             solutions.
+  //           </CardDescription>
+  //           <Alert>
+  //             <Lock className="w-4 h-4" />
+  //             <AlertDescription>
+  //               Coding practice requires authentication to save your progress
+  //               and submissions.
+  //             </AlertDescription>
+  //           </Alert>
+  //         </Card>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">Data Structures & Algorithms</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-4">
+            Data Structures & Algorithms
+          </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Master coding interviews with our comprehensive collection of DSA problems. Practice with problems from easy
-            to advanced difficulty levels.
+            Master coding interviews with our comprehensive collection of DSA
+            problems. Practice with problems from easy to advanced difficulty
+            levels.
           </p>
         </div>
 
         {/* Stats Cards */}
         {/* Stats Cards */}
-<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-  {[
-    { icon: Target, value: "500+", label: "Problems" },
-    { icon: Code, value: "12", label: "Topics" },
-    { icon: Clock, value: "15-60", label: "Minutes" },
-    { icon: Users, value: "5000+", label: "Solved" },
-  ].map((item, i) => {
-    const Icon = item.icon;
-    return (
-      <Card
-        key={i}
-        className="flex items-center justify-center h-40" // ✅ Fixed height for balance
-      >
-        <CardContent className="flex flex-col items-center justify-center text-center p-6 h-full">
-          <Icon className="w-8 h-8 text-primary mb-3" />
-          <div className="text-2xl font-bold text-foreground">{item.value}</div>
-          <div className="text-sm text-muted-foreground">{item.label}</div>
-        </CardContent>
-      </Card>
-    );
-  })}
-</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {[
+            { icon: Target, value: "500+", label: "Problems" },
+            { icon: Code, value: "12", label: "Topics" },
+            { icon: Clock, value: "15-60", label: "Minutes" },
+            { icon: Users, value: "5000+", label: "Solved" },
+          ].map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <Card
+                key={i}
+                className="flex items-center justify-center h-40" // ✅ Fixed height for balance
+              >
+                <CardContent className="flex flex-col items-center justify-center text-center p-6 h-full">
+                  <Icon className="w-8 h-8 text-primary mb-3" />
+                  <div className="text-2xl font-bold text-foreground">
+                    {item.value}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {item.label}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
 
-{/* Topics Grid */}
-<div className="mb-8">
-  <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
-    Choose Your Topic
-  </h2>
-  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-    {topics.map((topic) => (
-      <Card
-        key={topic}
-        className={`cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1 ${
-          selectedTopic === topic ? "ring-2 ring-primary shadow-md" : ""
-        } flex items-center justify-center h-28`} // ✅ Centered + equal height
-        onClick={() => setSelectedTopic(topic)}
-      >
-        <CardContent className="flex items-center justify-center text-center p-4 h-full">
-          <div className="text-sm font-medium text-foreground">{topic}</div>
-        </CardContent>
-      </Card>
-    ))}
-  </div>
-</div>
-
-
+        {/* Topics Grid */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-6 text-center">
+            Choose Your Topic
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {topics.map((topic) => (
+              <Card
+                key={topic}
+                className={`cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1 ${
+                  selectedTopic === topic ? "ring-2 ring-primary shadow-md" : ""
+                } flex items-center justify-center h-28`} // ✅ Centered + equal height
+                onClick={() => setSelectedTopic(topic)}
+              >
+                <CardContent className="flex items-center justify-center text-center p-4 h-full">
+                  <div className="text-sm font-medium text-foreground">
+                    {topic}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -3704,7 +3887,10 @@ Constraints:
             </SelectContent>
           </Select>
 
-          <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+          <Select
+            value={selectedDifficulty}
+            onValueChange={setSelectedDifficulty}
+          >
             <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="Select Difficulty" />
             </SelectTrigger>
@@ -3718,8 +3904,8 @@ Constraints:
 
           <Button
             onClick={() => {
-              setSelectedTopic("all")
-              setSelectedDifficulty("all")
+              setSelectedTopic("all");
+              setSelectedDifficulty("all");
             }}
           >
             Clear Filters
@@ -3728,56 +3914,67 @@ Constraints:
 
         {/* Problems List */}
         <div className="space-y-4">
-  <h2 className="text-2xl font-bold text-foreground mb-6">
-    Practice Problems ({filteredProblems.length})
-  </h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">
+            Practice Problems ({filteredProblems.length})
+          </h2>
 
-  {filteredProblems.map((problem) => (
-    <Card key={problem.id} className="hover:shadow-md transition-all duration-200">
-      <CardContent className="p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h3 className="text-lg font-semibold text-foreground">{problem.title}</h3>
-              <Badge variant={getDifficultyVariant(problem.difficulty)}>{problem.difficulty}</Badge>
-              <Badge variant="outline">{problem.topic}</Badge>
-            </div>
-            <p className="text-muted-foreground mb-2">{problem.description}</p>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                <span>{problem.time}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Users className="w-4 h-4" />
-                <span>{problem.solved} solved</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={() => navigate(`/solve/${problem.id}`, { state: { problem } })}>
-              <Play className="w-4 h-4 mr-2" />
-              Solve Now
-            </Button>
-          </div>
+          {filteredProblems.map((problem) => (
+            <Card
+              key={problem.id}
+              className="hover:shadow-md transition-all duration-200"
+            >
+              <CardContent className="p-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {problem.title}
+                      </h3>
+                      <Badge variant={getDifficultyVariant(problem.difficulty)}>
+                        {problem.difficulty}
+                      </Badge>
+                      <Badge variant="outline">{problem.topic}</Badge>
+                    </div>
+                    <p className="text-muted-foreground mb-2">
+                      {problem.description}
+                    </p>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        <span>{problem.time}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        <span>{problem.solved} solved</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() =>
+                        navigate(`/solve/${problem.id}`, { state: { problem } })
+                      }
+                    >
+                      <Play className="w-4 h-4 mr-2" />
+                      Solve Now
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </CardContent>
-    </Card>
-  ))}
-</div>
-
 
         {/* Question Detail Modal - Full Screen Layout */}
-       
-        
+
         {/* Solutions Viewer */}
-        <SolutionsViewer 
-          isOpen={isSolutionsViewerOpen} 
-          onOpenChange={setIsSolutionsViewerOpen} 
+        <SolutionsViewer
+          isOpen={isSolutionsViewerOpen}
+          onOpenChange={setIsSolutionsViewerOpen}
         />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Coding
+export default Coding;

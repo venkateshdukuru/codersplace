@@ -84,7 +84,8 @@ export interface Hackathon {
 
 export interface Problem {
   _id: ObjectId;
-  collegeId: string;
+  collegeId?: ObjectId | null; // Made optional and nullable
+  isPublic?: boolean; // Added isPublic field
   title: string;
   description?: string;
   difficulty?: "easy" | "medium" | "hard";
@@ -96,7 +97,8 @@ export interface Problem {
 
 export interface Quiz {
   _id: ObjectId;
-  collegeId: string;
+  collegeId?: ObjectId | null; // Made optional and nullable
+  isPublic?: boolean; // Added isPublic field
   title: string;
   questions?: { text: string; options: string[]; correct: number; type: "aptitude" | "reasoning" | "verbal" }[];
   createdAt: Date;
@@ -106,7 +108,8 @@ export interface Quiz {
 
 export interface WeeklyTest {
   _id: ObjectId;
-  collegeId: string;
+  collegeId?: ObjectId | null; // Made optional and nullable
+  isPublic?: boolean; // Added isPublic field
   weekNumber: number;
   title: string;
   questions: { text: string; options: string[]; correct: number }[];
@@ -123,7 +126,8 @@ export interface WeeklyTest {
 
 export interface Interview {
   _id: ObjectId;
-  collegeId: string;
+  collegeId?: ObjectId | null; // Made optional and nullable
+  isPublic?: boolean; // Added isPublic field
   title: string;
   questions?: { text: string; options: string[]; correct: number }[];
   createdAt: Date;

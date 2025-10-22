@@ -22,6 +22,10 @@ import { Interview } from "./pages/Interview";
 import CodingPage from "./pages/CodingPage";
 import { InterviewProvider } from "./context/InterviewContext";
 import Profile from "./components/auth/Profile-info";
+import ScrollToTop from "./components/ScrollToTop";
+
+// ✅ Import ScrollToTop
+
 
 export const serverUrl = "http://localhost:5002";
 const queryClient = new QueryClient();
@@ -36,6 +40,9 @@ const App = () => {
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              {/* ✅ Add ScrollToTop inside BrowserRouter */}
+              <ScrollToTop />
+
               <Routes>
                 {/* Auth Routes - No Layout */}
                 <Route path="/signin" element={<SignIn />} />

@@ -195,29 +195,29 @@ const ARV = () => {
   };
 
   // Authentication check
-  if (!isAuthenticated) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto text-center">
-          <Card className="p-8">
-            <div className="flex justify-center mb-4">
-              <Lock className="w-16 h-16 text-muted-foreground" />
-            </div>
-            <CardTitle className="text-2xl mb-4">Authentication Required</CardTitle>
-            <CardDescription className="text-lg mb-6">
-              Please log in to access ARV practice questions and track your progress.
-            </CardDescription>
-            <Alert>
-              <Lock className="w-4 h-4" />
-              <AlertDescription>
-                ARV practice requires authentication to save your progress and scores.
-              </AlertDescription>
-            </Alert>
-          </Card>
-        </div>
-      </div>
-    );
-  }
+  // if (!isAuthenticated) {
+  //   return (
+  //     <div className="container mx-auto px-4 py-8">
+  //       <div className="max-w-2xl mx-auto text-center">
+  //         <Card className="p-8">
+  //           <div className="flex justify-center mb-4">
+  //             <Lock className="w-16 h-16 text-muted-foreground" />
+  //           </div>
+  //           <CardTitle className="text-2xl mb-4">Authentication Required</CardTitle>
+  //           <CardDescription className="text-lg mb-6">
+  //             Please log in to access ARV practice questions and track your progress.
+  //           </CardDescription>
+  //           <Alert>
+  //             <Lock className="w-4 h-4" />
+  //             <AlertDescription>
+  //               ARV practice requires authentication to save your progress and scores.
+  //             </AlertDescription>
+  //           </Alert>
+  //         </Card>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-background py-8">

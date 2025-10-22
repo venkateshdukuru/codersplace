@@ -1,18 +1,20 @@
+
+
 import nodemailer from 'nodemailer';
 import { config } from './env';
 import { logger } from '../utils/logger';
 
-// Brevo (Sendinblue) SMTP configuration
+// Gmail SMTP configuration
 const transporter = nodemailer.createTransport({
-  host: config.MAIL_HOST,
-  port: Number(config.MAIL_PORT),
+  host: 'smtp.gmail.com',
+  port: 587,
   secure: false, // Use TLS (STARTTLS)
   auth: {
-    user: config.MAIL_USER,
-    pass: config.MAIL_PASS,
+    user: config.MAIL_USER, // Your Gmail address
+    pass: config.MAIL_PASS, // Your App Password (NOT your Gmail password)
   },
   tls: {
-    rejectUnauthorized: true // Change to true for production
+    rejectUnauthorized: true
   },
   debug: true, // Enable debug output
   logger: true // Log to console
@@ -21,11 +23,11 @@ const transporter = nodemailer.createTransport({
 // Verify connection configuration
 transporter.verify(function (error, success) {
   if (error) {
-    console.error(' SMTP connection error:', error);
+    console.error('SMTP connection error:', error);
     logger.error(`SMTP connection failed: ${error}`);
   } else {
-    console.log('✅ SMTP Server is ready to take our messages');
-    logger.info('SMTP Server connected successfully');
+    console.log('Gmail SMTP Server is ready to take our messages');
+    logger.info('Gmail SMTP Server connected successfully');
   }
 });
 
@@ -46,9 +48,6 @@ export const sendMail = async (to: string, subject: string, html: string) => {
       to: to,
       subject: subject,
       html: html,
-      // headers: {
-      //   'X-Mailin-Tag': 'registration',
-      // }
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -57,10 +56,10 @@ export const sendMail = async (to: string, subject: string, html: string) => {
     console.log('Message ID:', info.messageId);
     console.log('Response:', info.response);
     console.log('Accepted:', info.accepted);
-    console.log(' Rejected:', info.rejected);
+    console.log('Rejected:', info.rejected);
 
     logger.info(`Email sent successfully to ${to} (messageId: ${info.messageId}, response: ${info.response})`);
-
+    
     return info;
   } catch (error: any) {
     console.error('Error sending email:', error);
@@ -71,16 +70,16 @@ export const sendMail = async (to: string, subject: string, html: string) => {
       response: error.response,
       responseCode: error.responseCode
     });
-    
+   
     logger.error(
       `Email sending failed: ${JSON.stringify({
-        to,
+        to, 
         error: error.message,
         code: error.code,
         response: error.response
       })}`
     );
-    
+   
     throw error;
   }
 };

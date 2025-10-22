@@ -125,9 +125,6 @@ const validate =
   };
 
 
-
-  // backend/src/middleware/validationMiddleware.ts
-
 const registerInitiateSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
@@ -145,6 +142,90 @@ const registerVerifySchema = z.object({
 const resendOtpSchema = z.object({
   email: z.string().email('Invalid email address'),
 });
+
+
+
+
+
+// PUBLIC SCHEMAS (no collegeId required)
+const publicProblemSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
+  testCases: z.array(z.object({ input: z.string(), output: z.string() })).optional(),
+});
+
+const publicQuizSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  questions: z.array(z.object({
+    text: z.string(),
+    options: z.array(z.string()),
+    correct: z.number(),
+    type: z.enum(['aptitude', 'reasoning', 'verbal']),
+  })).optional(),
+});
+
+
+const publicWeeklyTestSchema = z.object({
+  weekNumber: z.number().int().min(1, 'Week number must be a positive integer'),
+  title: z.string().min(1, 'Title is required'),
+  questions: z.array(z.object({
+    text: z.string(),
+    options: z.array(z.string()),
+    correct: z.number(),
+  })).min(1, 'At least one question is required'),
+  questionsModel: z.enum(['Problem', 'Quiz']),
+  deadline: z.string().min(1, 'Deadline is required'),
+  timeLimit: z.number().int().min(1, 'Time limit must be a positive integer').optional(),
+  maxScore: z.number().int().min(1, 'Max score must be a positive integer').optional(),
+});
+
+const collegeProblemSchema = z.object({
+  collegeId: z.string().min(1, 'College ID is required'),
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
+  testCases: z.array(z.object({ input: z.string(), output: z.string() })).optional(),
+});
+
+const collegeQuizSchema = z.object({
+  collegeId: z.string().min(1, 'College ID is required'),
+  title: z.string().min(1, 'Title is required'),
+  questions: z.array(z.object({
+    text: z.string(),
+    options: z.array(z.string()),
+    correct: z.number(),
+    type: z.enum(['aptitude', 'reasoning', 'verbal']),
+  })).optional(),
+});
+
+const collegeWeeklyTestSchema = z.object({
+  collegeId: z.string().min(1, 'College ID is required'),
+  weekNumber: z.number().int().min(1, 'Week number must be a positive integer'),
+  title: z.string().min(1, 'Title is required'),
+  questions: z.array(z.object({
+    text: z.string(),
+    options: z.array(z.string()),
+    correct: z.number(),
+  })).min(1, 'At least one question is required'),
+  questionsModel: z.enum(['Problem', 'Quiz']),
+  deadline: z.string().min(1, 'Deadline is required'),
+  timeLimit: z.number().int().min(1, 'Time limit must be a positive integer').optional(),
+  branchSpecific: z
+    .record(z.string(), z.array(z.string().min(1, 'Question ID is required')))
+    .optional(),
+  maxScore: z.number().int().min(1, 'Max score must be a positive integer').optional(),
+});
+
+// Export public validations
+export const publicProblemValidation = validate(publicProblemSchema);
+export const publicQuizValidation = validate(publicQuizSchema);
+export const publicWeeklyTestValidation = validate(publicWeeklyTestSchema);
+
+// Export college-specific validations
+export const collegeProblemValidation = validate(collegeProblemSchema);
+export const collegeQuizValidation = validate(collegeQuizSchema);
+export const collegeWeeklyTestValidation = validate(collegeWeeklyTestSchema);
 
 // Export the validations
 export const registerInitiateValidation = validate(registerInitiateSchema);

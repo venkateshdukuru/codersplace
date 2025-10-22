@@ -1,29 +1,45 @@
+// backend/src/routes/quizRoutes.ts
+
 import express, { RequestHandler } from "express";
 import {
-  createQuiz,
+  createPublicQuiz,
+  createCollegeQuiz,
   updateQuiz,
   deleteQuiz,
   getQuizzes,
   submitQuiz,
 } from "../controllers/quizController";
-import { protect, superadminOnly } from "../middleware/authMiddleware";
-import { quizValidation } from "../middleware/validationMiddleware";
+import { protect, superadminOnly, facultyOrSuperadmin } from "../middleware/authMiddleware";
+import {
+  publicQuizValidation,
+  collegeQuizValidation,
+} from "../middleware/validationMiddleware";
 
 const router = express.Router();
 
+// PUBLIC QUIZ ROUTES
 router.post(
-  "/",
+  "/public",
   protect,
   superadminOnly,
-  quizValidation,
-  createQuiz as RequestHandler
+  publicQuizValidation,
+  createPublicQuiz as RequestHandler
 );
 
+// COLLEGE-SPECIFIC QUIZ ROUTES
+router.post(
+  "/college",
+  protect,
+  facultyOrSuperadmin,
+  collegeQuizValidation,
+  createCollegeQuiz as RequestHandler
+);
+
+// UPDATE & DELETE
 router.put(
   "/:quizId",
   protect,
   superadminOnly,
-  quizValidation,
   updateQuiz as RequestHandler
 );
 
@@ -34,8 +50,10 @@ router.delete(
   deleteQuiz as RequestHandler
 );
 
+// GET ALL QUIZZES
 router.get("/", protect, getQuizzes as RequestHandler);
 
+// SUBMIT QUIZ
 router.post(
   "/:quizId/submit",
   protect,

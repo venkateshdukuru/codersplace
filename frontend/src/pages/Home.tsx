@@ -204,7 +204,7 @@ const Home = () => {
         "Trees, Graphs, Recursion, Backtracking",
         "Dynamic Programming, Greedy, Sorting & Searching"
       ],
-      footer: "🎯 Suitable for beginners to advanced coders preparing for coding rounds & online assessments.",
+      footer: " Suitable for beginners to advanced coders preparing for coding rounds & online assessments.",
       link: "/coding",
       gradient: "from-white-50 to-white-100",
       image: "https://img.freepik.com/premium-vector/boy-coding-with-laptop-illustration_418302-2379.jpg",
@@ -220,7 +220,7 @@ const Home = () => {
         "Logical Reasoning (Puzzles, Data Interpretation, Seating Arrangements)",
         "Verbal Ability (Grammar, Vocabulary, Reading Comprehension)"
       ],
-      footer: "💡 Perfect for campus placements, competitive exams, and company aptitude tests.",
+      footer: " Perfect for campus placements, competitive exams, and company aptitude tests.",
       link: "/arv",
       gradient: "from-white-50 to-white-100",
       image: "https://media.geeksforgeeks.org/wp-content/cdn-uploads/20211116123009/Quantitative-Aptitude-Concepts-Questions-and-Explanation.png",
@@ -238,7 +238,7 @@ const Home = () => {
         "System Design (scalable architectures, low-level & high-level design)",
         "Computer Networks (OSI model, TCP/IP, routing)"
       ],
-      footer: "✅ Tailored for product-based companies, FAANG interviews, and service companies.",
+      footer: " Tailored for product-based companies, FAANG interviews, and service companies.",
       link: "/interview",
       gradient: "from-white-50 to-white-100",
       image: "https://codequotient.com/blog/wp-content/uploads/2022/12/How-To-Practice-Coding-Interview-Amazing-Tips-Included-To-Crack-Best-MNCs.jpg",
@@ -254,7 +254,7 @@ const Home = () => {
         "Company-hosted recruitment challenges",
         "Competitive programming events"
       ],
-      footer: "🏆 Gain exposure, build projects, and stand out to recruiters.",
+      footer: " Gain exposure, build projects, and stand out to recruiters.",
       link: "/hackathons",
       gradient: "from-white-50 to-white-100",
       image: "https://img.freepik.com/free-vector/hackathon-doodle-hand-drawing-team-programmers-web-developers-managers-graphic-designers-deve_88138-1348.jpg",

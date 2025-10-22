@@ -130,10 +130,6 @@ export const initiateRegistration = asyncHandler(async (req: Request, res: Respo
             ⏰ <strong>Important:</strong> This OTP will expire in <strong>10 minutes</strong>.
           </p>
         </div>
-        
-        <p style="color: #6b7280; font-size: 12px; line-height: 1.6; margin-top: 20px;">
-          Your User ID: <code style="background: #f3f4f6; padding: 2px 4px; border-radius: 3px;">${userId}</code>
-        </p>
       </div>
     </div>
   `;
@@ -259,10 +255,6 @@ export const verifyRegistration = asyncHandler(async (req: Request, res: Respons
             📋 Your Account Details:
           </p>
           <table style="width: 100%; color: #374151;">
-            <tr>
-              <td style="padding: 8px 0;"><strong>User ID:</strong></td>
-              <td style="padding: 8px 0; font-family: monospace;">${(user as any).userId}</td>
-            </tr>
             <tr>
               <td style="padding: 8px 0;"><strong>Name:</strong></td>
               <td style="padding: 8px 0;">${pendingRegistration.name}</td>
