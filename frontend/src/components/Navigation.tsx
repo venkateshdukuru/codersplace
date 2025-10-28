@@ -1,42 +1,22 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Code,
-  Brain,
-  Users,
-  Trophy,
-  Home,
-  LogIn,
-  UserPlus,
-  User,
-  LogOut,
-  Settings,
-  UserCircle,
-  Menu,
-  X,
-} from "lucide-react";
+// frontend/src/components/Navigation.tsx
+import { Link, useLocation } from "react-router-dom";
+import { Code, Brain, Users, Trophy, Home, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { ProfileDialog } from "./profile/ProfileDialog";
 import { useAuth } from "@/context/AuthContext";
 
 const Navigation = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
 
   const getInitials = (name: string) => {
-    return name.split(" ").map((n) => n[0]).join("").toUpperCase();
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   const handleLogout = () => {
@@ -70,7 +50,7 @@ const Navigation = () => {
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
-
+              
               return (
                 <Link
                   key={item.href}
@@ -89,51 +69,42 @@ const Navigation = () => {
             })}
           </div>
 
-          {/* Auth/Profile Section (Desktop) */}
+          {/* Auth Section */}
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all">
-                    <Avatar className="w-8 h-8 ring-2 ring-primary/20 hover:ring-primary/40 transition-all">
-                      {user?.avatar?.url ? (
-                        <AvatarImage src={user.avatar.url} alt="Profile" />
-                      ) : null}
-                      <AvatarFallback className="text-xs bg-gradient-to-br from-primary to-accent text-white">
-                        {user?.name ? getInitials(user.name) : "U"}
-                      </AvatarFallback>
-                    </Avatar>
+                   <Avatar className="w-8 h-8 ring-2 ring-primary/20 hover:ring-primary/40 transition-all">
+  {user?.avatar?.url ? (
+    <AvatarImage src={user.avatar.url} alt="Profile" />
+  ) : null}
+  <AvatarFallback className="text-xs bg-gradient-to-br from-primary to-accent text-white">
+    {user?.name ? getInitials(user.name) : "U"}
+  </AvatarFallback>
+</Avatar>
                     <span className="hidden lg:inline font-medium text-sm">{user?.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => navigate("/profile-info")}>
-                    <UserCircle className="w-4 h-4 mr-2" />
-                    View Profile
-                  </DropdownMenuItem>
+                <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem onClick={() => setIsProfileDialogOpen(true)}>
-                    <User className="w-4 h-4 mr-2" />
                     Profile Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="gradient"
+              <Link to="/signin">
+                <Button 
                   size="sm"
-                  onClick={() => navigate("/signin")}
-                  className="flex items-center gap-2"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 px-6"
                 >
-                  <UserPlus className="w-4 h-4" />
-                  <span>Sign In</span>
+                  Sign In
                 </Button>
-              </div>
+              </Link>
             )}
 
             {/* Mobile Menu Button */}
@@ -141,19 +112,23 @@ const Navigation = () => {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
             >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-800 animate-in slide-in-from-top duration-200 fixed top-16 left-0 w-full bg-white dark:bg-gray-950 z-[100] shadow-lg">
-            <div className="flex flex-col space-y-1 max-h-[80vh] overflow-y-auto">
+          <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-800 animate-in slide-in-from-top duration-200">
+            <div className="flex flex-col space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.href;
-
+                
                 return (
                   <Link
                     key={item.href}
@@ -175,8 +150,11 @@ const Navigation = () => {
           </div>
         )}
       </div>
-
-      <ProfileDialog isOpen={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen} />
+      
+      <ProfileDialog 
+        isOpen={isProfileDialogOpen} 
+        onOpenChange={setIsProfileDialogOpen} 
+      />
     </nav>
   );
 };

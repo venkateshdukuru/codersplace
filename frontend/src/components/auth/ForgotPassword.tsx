@@ -16,7 +16,7 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { authService } from "@/services/authService";
-import Footer from "../Footer";
+import Footer from "../footer";
 
 export const ForgotPassword = () => {
   const navigate = useNavigate();

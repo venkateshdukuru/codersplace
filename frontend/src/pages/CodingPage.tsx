@@ -1,685 +1,567 @@
-"use client"
+// src/pages/CodingPage.tsx
 
-import { useState, useEffect } from "react"
-import { useParams, useNavigate, useLocation } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Textarea } from "@/components/ui/textarea"
-import { X, BookOpen, Lightbulb, Terminal, Settings, Code } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ArrowLeft, BookOpen, Lightbulb, Terminal, Settings, Play, Send, Loader2, CheckCircle2, XCircle, Code2, Sun, Moon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useProblem } from "@/context/ProblemContext";
+import { Problem } from "@/types";
+import { DifficultyBadge } from "@/components/common/DifficultyBadge";
+import { CollegeBadge } from "@/components/common/CollegeBadge";
+import { CodeEditor } from "@/components/coding/CodeEditor";
+import { codeExecutionService } from "@/services/codeExecutionService";
+import { cn } from "@/lib/utils";
 
-interface Problem {
-  id: number
-  title: string
-  difficulty: string
-  topic: string
-  description: string
-  problemStatement: string
-  time: string
-  solved: number
+const LANGUAGES = [
+  { id: 63, name: "JavaScript", template: "// Write your code here\nfunction solve() {\n    \n}\n\n// Read input\nconst input = require('fs').readFileSync(0, 'utf-8').trim();\nsolve();" },
+  { id: 71, name: "Python", template: "# Write your code here\ndef solve():\n    pass\n\n# Read input\nimport sys\ninput_data = sys.stdin.read().strip()\nsolve()" },
+  { id: 62, name: "Java", template: "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Write your code here\n        \n    }\n}" },
+  { id: 54, name: "C++", template: "#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your code here\n    \n    return 0;\n}" },
+];
+
+interface TestResult {
+  testCase: number;
+  passed: boolean;
+  input: string;
+  expectedOutput: string;
+  actualOutput: string;
+  error?: string;
+  time?: string;
+  memory?: number;
 }
 
-interface QuestionData {
-  description: string
-  examples: {
-    input: string
-    output: string
-    explanation: string
-  }[]
-  constraints: string[]
-  hints: string[]
-  approach: string
-  timeComplexity: string
-  spaceComplexity: string
-  testCases: {
-    input: string
-    output: string
-  }[]
-}
-
-const CodingPage = () => {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const location = useLocation() as { state?: { problem?: Problem } } | undefined
-  const { toast } = useToast()
-  const [selectedLanguage, setSelectedLanguage] = useState("python")
-  const [code, setCode] = useState("")
-  const [isRunning, setIsRunning] = useState(false)
-  const [output, setOutput] = useState("")
-  const [question, setQuestion] = useState<Problem | null>(null)
-
-  const languages = [
-    {
-      id: "javascript",
-      name: "JavaScript",
-      template: "function solve() {\n    // Write your code here\n    return result;\n}",
-    },
-    { id: "python", name: "Python", template: "def solve():\n    # Write your code here\n    return result" },
-    {
-      id: "java",
-      name: "Java",
-      template:
-        "public class Solution {\n    public int solve() {\n        // Write your code here\n        return result;\n    }\n}",
-    },
-    {
-      id: "cpp",
-      name: "C++",
-      template:
-        "#include <iostream>\n#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int solve() {\n        // Write your code here\n        return result;\n    }\n};",
-    },
-    {
-      id: "c",
-      name: "C",
-      template: "#include <stdio.h>\n\nint solve() {\n    // Write your code here\n    return result;\n}",
-    },
-    { id: "sql", name: "SQL", template: "-- Write your SQL query here\nSELECT * FROM table_name;" },
-  ]
+export const CodingPage = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { toast } = useToast();
+  const { getProblem, loading, error } = useProblem();
+  
+  const [problem, setProblem] = useState<Problem | null>(
+    location.state?.problem || null
+  );
+  const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0]);
+  const [code, setCode] = useState(LANGUAGES[0].template);
+  const [output, setOutput] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
+  const [fetchingProblem, setFetchingProblem] = useState(false);
+  const [outputType, setOutputType] = useState<'idle' | 'running' | 'success' | 'error'>('idle');
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
+  const [editorTheme, setEditorTheme] = useState<'vs-dark' | 'light'>('vs-dark');
 
   useEffect(() => {
-    if (!id) return
-
-    const questionId = Number.parseInt(id)
-    const stateProblem = location?.state?.problem as Problem | undefined
-
-    const loadedQuestion = stateProblem && stateProblem.id === questionId ? stateProblem : getQuestionById(questionId)
-
-    if (loadedQuestion) {
-      setQuestion(loadedQuestion)
-      // initialize code template for current language if needed
-      setCode(languages.find((l) => l.id === selectedLanguage)?.template || "")
-    } else {
-      navigate("/coding")
-    }
-  }, [id, navigate, location])
-
-  useEffect(() => {
-    const selectedLang = languages.find((lang) => lang.id === selectedLanguage)
-    if (selectedLang) {
-      setCode(selectedLang.template)
-    }
-  }, [selectedLanguage])
-
-  const handleLanguageChange = (language: string) => {
-    setSelectedLanguage(language)
-  }
-
-  const handleRunCode = () => {
-    setIsRunning(true)
-    setTimeout(() => {
-      const sampleOutput =
-        selectedLanguage === "python"
-          ? "Hello World\n42\n[1, 2, 3]"
-          : selectedLanguage === "java"
-            ? "Hello World\n42"
-            : "Hello World\n42\n[1, 2, 3]"
-
-      setOutput(
-        `Execution completed:\n\n${sampleOutput}\n\n--- Debug Info ---\nLanguage: ${selectedLanguage}\nExecution time: 1.2s\nMemory used: 15.4 MB`,
-      )
-      setIsRunning(false)
-    }, 2000)
-  }
-
-  const handleSubmitCode = () => {
-    if (!code.trim()) return
-
-    setIsRunning(true)
-
-    setTimeout(() => {
-      if (question) {
-        const questionData = getDetailedQuestionData(question)
-        const testCases = questionData.testCases || []
-
-        let passedTests = 0
-        const testResults = []
-
-        const codeQuality =
-          code.length > 50 && (code.includes("function") || code.includes("def") || code.includes("class")) ? 0.8 : 0.4
-
-        for (let i = 0; i < testCases.length; i++) {
-          const testCase = testCases[i]
-          const passed = Math.random() < codeQuality
-          if (passed) passedTests++
-
-          testResults.push({
-            testCase: i + 1,
-            input: testCase.input,
-            expected: testCase.output,
-            actual: passed ? testCase.output : "Wrong output",
-            passed: passed,
-          })
-        }
-
-        const allPassed = passedTests === testCases.length
-        const submissionTime = new Date().toISOString()
-
-        let output = `🔍 TEST RESULTS\n\n`
-        output += `Passed: ${passedTests}/${testCases.length} test cases\n`
-        output += `Submission Time: ${new Date(submissionTime).toLocaleString()}\n\n`
-
-        testResults.forEach((result) => {
-          const status = result.passed ? "✅ PASS" : "❌ FAIL"
-          output += `Test Case ${result.testCase}: ${status}\n`
-          output += `Input: ${result.input}\n`
-          output += `Expected: ${result.expected}\n`
-          output += `Your Output: ${result.actual}\n\n`
-        })
-
-        const solution = {
-          id: `${question.id}_${Date.now()}`,
-          problemId: question.id,
-          title: question.title,
-          difficulty: question.difficulty,
-          topic: question.topic,
-          language: selectedLanguage,
-          code: code,
-          timestamp: submissionTime,
-          testsPassed: passedTests,
-          totalTests: testCases.length,
-          passed: allPassed,
-          runtime: `${(Math.random() * 1000 + 100).toFixed(0)}ms`,
-          memory: `${(Math.random() * 20 + 10).toFixed(1)} MB`,
-          status: allPassed ? "Accepted" : "Failed",
-        }
-
-        const savedSolutions = JSON.parse(localStorage.getItem("codingSolutions") || "[]")
-        savedSolutions.unshift(solution)
-
-        if (savedSolutions.length > 50) {
-          savedSolutions.splice(50)
-        }
-
-        localStorage.setItem("codingSolutions", JSON.stringify(savedSolutions))
-
-        if (allPassed) {
-          output += `🎉 CONGRATULATIONS!\n`
-          output += `All test cases passed! Your solution has been saved.\n\n`
-          output += `📊 Submission Details:\n`
-          output += `• Problem: ${question.title}\n`
-          output += `• Difficulty: ${question.difficulty}\n`
-          output += `• Language: ${selectedLanguage}\n`
-          output += `• Runtime: ${solution.runtime}\n`
-          output += `• Memory: ${solution.memory}\n`
-          output += `• Status: ${solution.status}\n\n`
-          output += `💾 Solution saved to your profile!\n`
-
+    const loadProblem = async () => {
+      if (!problem && id) {
+        setFetchingProblem(true);
+        try {
+          const fetchedProblem = await getProblem(id);
+          if (fetchedProblem) {
+            setProblem(fetchedProblem);
+          } else {
+            toast({
+              title: "Error",
+              description: "Problem not found",
+              variant: "destructive"
+            });
+            navigate('/coding');
+          }
+        } catch (err) {
           toast({
-            title: "Success!",
-            description: "All test cases passed! Solution saved.",
-          })
-        } else {
-          output += `❌ SOLUTION INCOMPLETE\n`
-          output += `${testCases.length - passedTests} test case(s) failed.\n`
-          output += `💡 Hints:\n`
-          output += `• Check your logic against the failed test cases\n`
-          output += `• Consider edge cases and boundary conditions\n`
-          output += `• Verify your algorithm's correctness\n\n`
-          output += `📊 Submission Details:\n`
-          output += `• Status: ${solution.status}\n`
-          output += `• Runtime: ${solution.runtime}\n`
-          output += `• Memory: ${solution.memory}\n\n`
-          output += `💾 Attempt saved to your history.\n`
-
-          toast({
-            title: "Tests Failed",
-            description: `${testCases.length - passedTests} test case(s) failed.`,
-            variant: "destructive",
-          })
+            title: "Error",
+            description: "Failed to load problem",
+            variant: "destructive"
+          });
+          navigate('/coding');
+        } finally {
+          setFetchingProblem(false);
         }
-
-        setOutput(output)
       }
-      setIsRunning(false)
-    }, 3000)
-  }
+    };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "easy":
-        return "text-green-600 bg-green-50 border-green-200"
-      case "medium":
-        return "text-yellow-600 bg-yellow-50 border-yellow-200"
-      case "hard":
-        return "text-red-600 bg-red-50 border-red-200"
-      default:
-        return "text-gray-600 bg-gray-50 border-gray-200"
+    loadProblem();
+  }, [id, problem, getProblem, navigate, toast]);
+
+  const handleLanguageChange = (langId: string) => {
+    const lang = LANGUAGES.find(l => l.id === Number(langId));
+    if (lang) {
+      setSelectedLanguage(lang);
+      setCode(lang.template);
     }
-  }
+  };
 
-  if (!question) {
+  const toggleEditorTheme = () => {
+    setEditorTheme(prev => prev === 'vs-dark' ? 'light' : 'vs-dark');
+  };
+
+  const handleRunCode = async () => {
+    if (!code.trim()) {
+      toast({
+        title: "Error",
+        description: "Please write some code first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsRunning(true);
+    setOutputType('running');
+    setOutput("⏳ Running your code...\n\n");
+    
+    try {
+      // Run against first test case only
+      const firstTestCase = problem?.testCases?.[0];
+      
+      if (!firstTestCase) {
+        setOutputType('error');
+        setOutput("❌ No test cases available");
+        return;
+      }
+
+      const result = await codeExecutionService.executeCode(
+        code,
+        selectedLanguage.id,
+        firstTestCase.input
+      );
+
+      const formattedOutput = codeExecutionService.formatOutput(result);
+      
+      if (result.status.id === 3) { // Accepted
+        const actualOutput = (result.stdout || '').trim();
+        const expectedOutput = firstTestCase.output.trim();
+        const isPassed = actualOutput === expectedOutput;
+
+        if (isPassed) {
+          setOutputType('success');
+          setOutput(
+            "✅ Sample Test Case Passed!\n\n" +
+            formattedOutput +
+            "\n💡 Submit to run against all test cases."
+          );
+        } else {
+          setOutputType('error');
+          setOutput(
+            "❌ Sample Test Case Failed\n\n" +
+            formattedOutput +
+            "\n📋 Expected Output:\n" + expectedOutput +
+            "\n\n📤 Your Output:\n" + actualOutput
+          );
+        }
+      } else {
+        setOutputType('error');
+        setOutput("❌ Execution Failed\n\n" + formattedOutput);
+      }
+    } catch (error: any) {
+      setOutputType('error');
+      setOutput("❌ Error: " + error.message);
+      toast({
+        title: "Execution Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!problem || !code.trim()) {
+      toast({
+        title: "Error",
+        description: "Please write some code before submitting",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!problem.testCases || problem.testCases.length === 0) {
+      toast({
+        title: "Error",
+        description: "No test cases available for this problem",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsRunning(true);
+      setOutputType('running');
+      setOutput("🔄 Running all test cases...\n\n");
+      setTestResults([]);
+      
+      const result = await codeExecutionService.runTestCases(
+        code,
+        selectedLanguage.id,
+        problem.testCases
+      );
+      
+      setTestResults(result.results);
+
+      if (result.passed === result.total) {
+        setOutputType('success');
+        setOutput(
+          `🎉 All Test Cases Passed! (${result.passed}/${result.total})\n\n` +
+          "✅ Your solution is correct!\n\n" +
+          "Test Results:\n" +
+          result.results.map(r => 
+            `Test ${r.testCase}: ${r.passed ? '✅ Passed' : '❌ Failed'} (${r.time}s, ${r.memory}KB)`
+          ).join('\n')
+        );
+        
+        toast({
+          title: "Success!",
+          description: `All ${result.total} test cases passed!`,
+        });
+      } else {
+        setOutputType('error');
+        setOutput(
+          `❌ Some Test Cases Failed (${result.passed}/${result.total} passed)\n\n` +
+          result.results.map((r, idx) => {
+            if (!r.passed) {
+              return `\nTest Case ${r.testCase}: ❌ Failed\n` +
+                     `Input: ${r.input}\n` +
+                     `Expected: ${r.expectedOutput}\n` +
+                     `Got: ${r.actualOutput}\n` +
+                     (r.error ? `Error: ${r.error}\n` : '');
+            }
+            return `Test Case ${r.testCase}: ✅ Passed`;
+          }).join('\n')
+        );
+        
+        toast({
+          title: "Failed",
+          description: `${result.failed} test case(s) failed`,
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
+      setOutputType('error');
+      setOutput("❌ Submission Error: " + error.message);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  if (fetchingProblem || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-lg text-muted-foreground">Loading problem...</p>
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center space-y-4 animate-scale-in">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-primary-light rounded-full mx-auto" />
+            <Loader2 className="w-16 h-16 text-primary animate-spin absolute inset-0 mx-auto" />
+          </div>
+          <p className="text-lg text-muted-foreground font-medium">Loading problem...</p>
+        </div>
       </div>
-    )
+    );
   }
 
-  const questionData = getDetailedQuestionData(question)
+  if (error || !problem) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background p-4">
+        <Card className="max-w-md w-full shadow-elevated animate-scale-in">
+          <CardContent className="p-6 space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            {!problem && (
+              <div className="text-center space-y-2">
+                <p className="text-lg text-muted-foreground">Problem not found</p>
+              </div>
+            )}
+            <Button 
+              className="w-full" 
+              onClick={() => navigate('/coding')}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Problems
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b bg-card">
+      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-20 shadow-sm">
         <div className="max-w-[98vw] mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-lg sm:text-xl font-bold">{question.title}</h1>
-              <Badge className={getDifficultyColor(question.difficulty)}>{question.difficulty}</Badge>
-              <Badge variant="outline">{question.topic}</Badge>
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/coding")}
+                className="flex-shrink-0"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div className="flex items-center gap-3 flex-wrap min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold truncate">{problem.title}</h1>
+                <DifficultyBadge difficulty={problem.difficulty} />
+                <CollegeBadge source={problem.source} collegeName={problem.collegeName} />
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="flex items-center gap-2">
-                <Settings className="w-4 h-4 flex-shrink-0" />
-                <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
-                  <SelectTrigger className="w-[120px] sm:w-[140px] h-9">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {languages.map((lang) => (
-                      <SelectItem key={lang.id} value={lang.id}>
-                        {lang.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => navigate("/coding")} className="h-9 w-9 p-0">
-                <X className="w-4 h-4" />
-              </Button>
+            <div className="flex items-center gap-2">
+              <Settings className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
+              <Select 
+                value={selectedLanguage.id.toString()} 
+                onValueChange={handleLanguageChange}
+              >
+                <SelectTrigger className="w-[140px] h-9 border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LANGUAGES.map((lang) => (
+                    <SelectItem key={lang.id} value={lang.id.toString()}>
+                      {lang.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden animate-fade-in">
         <div className="h-full max-w-[98vw] mx-auto px-4 sm:px-6 py-4">
           <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Problem Statement Panel */}
             <div className="flex flex-col overflow-hidden">
-              <Tabs defaultValue="problem" className="flex flex-col h-full">
-                <TabsList className="grid w-full grid-cols-3 h-9 sm:h-10">
-                  <TabsTrigger value="problem" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-                    <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden xs:inline">Problem</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="solution" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-                    <Code className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden xs:inline">Solution</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="hints" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-                    <Lightbulb className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden xs:inline">Hints</span>
-                  </TabsTrigger>
-                </TabsList>
+              <Card className="flex flex-col h-full shadow-card border-border">
+                <Tabs defaultValue="problem" className="flex flex-col h-full">
+                  <div className="border-b px-6 pt-4">
+                    <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+                      <TabsTrigger value="problem" className="flex items-center gap-2">
+                        <BookOpen className="w-4 h-4" />
+                        Problem
+                      </TabsTrigger>
+                      <TabsTrigger value="hints" className="flex items-center gap-2">
+                        <Lightbulb className="w-4 h-4" />
+                        Test Cases
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
 
-                <div className="flex-1 overflow-auto mt-3 sm:mt-4 px-1">
-                  <TabsContent value="problem" className="space-y-4 sm:space-y-6 mt-0">
-                    <div>
-                      <h3 className="font-semibold text-base sm:text-lg mb-2 sm:mb-3">Description</h3>
-                      <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                        {questionData.description}
-                      </p>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base sm:text-lg mb-2 sm:mb-3">Examples</h3>
-                      <div className="space-y-3 sm:space-y-4">
-                        {questionData.examples.map((example, index) => (
-                          <div key={index} className="bg-muted/50 p-3 sm:p-4 rounded-lg">
-                            <div className="mb-2">
-                              <span className="font-medium text-sm sm:text-base">Input:</span>{" "}
-                              <code className="bg-muted px-2 py-1 rounded text-xs sm:text-sm break-all">
-                                {example.input}
-                              </code>
-                            </div>
-                            <div className="mb-2">
-                              <span className="font-medium text-sm sm:text-base">Output:</span>{" "}
-                              <code className="bg-muted px-2 py-1 rounded text-xs sm:text-sm break-all">
-                                {example.output}
-                              </code>
-                            </div>
-                            <div className="text-sm sm:text-base">
-                              <span className="font-medium">Explanation:</span> {example.explanation}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-base sm:text-lg mb-2 sm:mb-3">Constraints</h3>
-                      <ul className="list-disc list-inside space-y-1 text-sm sm:text-base text-muted-foreground">
-                        {questionData.constraints.map((constraint, index) => (
-                          <li key={index} className="break-words">
-                            {constraint}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      <Card>
-                        <CardContent className="p-3 sm:p-4">
-                          <div className="text-xs sm:text-sm font-medium text-muted-foreground">Time Complexity</div>
-                          <div className="text-base sm:text-lg font-bold text-foreground">
-                            {questionData.timeComplexity}
-                          </div>
-                        </CardContent>
-                      </Card>
-                      <Card>
-                        <CardContent className="p-3 sm:p-4">
-                          <div className="text-xs sm:text-sm font-medium text-muted-foreground">Space Complexity</div>
-                          <div className="text-base sm:text-lg font-bold text-foreground">
-                            {questionData.spaceComplexity}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="solution" className="mt-0">
-                    <div className="space-y-3 sm:space-y-4">
-                      <div className="bg-muted/50 p-3 sm:p-4 rounded-lg">
-                        <h3 className="font-semibold mb-2 text-sm sm:text-base">Solution Code</h3>
-                        <pre className="bg-background p-3 sm:p-4 rounded border overflow-x-auto text-xs sm:text-sm">
-                          <code>{`// Solution will be provided here
-function solve(input) {
-    // Implementation details
-    return result;
-}`}</code>
-                        </pre>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-2 text-sm sm:text-base">Explanation</h3>
-                        <p className="text-sm sm:text-base text-muted-foreground">
-                          Detailed step-by-step explanation of the solution approach and implementation will be provided
-                          here.
+                  <div className="flex-1 overflow-auto px-6 py-4">
+                    <TabsContent value="problem" className="space-y-6 mt-0">
+                      <div className="space-y-3">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
+                          <div className="w-1 h-5 bg-primary rounded-full" />
+                          Description
+                        </h3>
+                        <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-wrap pl-4">
+                          {problem.description || "No description available"}
                         </p>
                       </div>
-                    </div>
-                  </TabsContent>
 
-                  <TabsContent value="hints" className="mt-0">
-                    <div className="space-y-3 sm:space-y-4">
-                      <h3 className="font-semibold text-base sm:text-lg">Hints to solve this problem</h3>
-                      <div className="space-y-2 sm:space-y-3">
-                        {questionData.hints.map((hint, index) => (
-                          <div key={index} className="bg-muted/50 p-3 sm:p-4 rounded-lg">
-                            <div className="flex items-start gap-2 sm:gap-3">
-                              <div className="bg-primary text-primary-foreground rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">
-                                {index + 1}
+                      {problem.testCases && problem.testCases.length > 0 && (
+                        <div className="space-y-3">
+                          <h3 className="font-semibold text-lg flex items-center gap-2">
+                            <div className="w-1 h-5 bg-primary rounded-full" />
+                            Sample Test Cases
+                          </h3>
+                          <div className="space-y-3 pl-4">
+                            {problem.testCases.slice(0, 2).map((testCase, index) => (
+                              <div key={index} className="bg-muted/30 p-4 rounded-lg border border-border space-y-3">
+                                <div className="font-medium text-sm text-muted-foreground">Example {index + 1}</div>
+                                <div>
+                                  <span className="font-medium text-sm">Input:</span>
+                                  <code className="block bg-card/50 px-3 py-2 rounded mt-1.5 text-sm font-mono whitespace-pre-wrap border border-border">
+                                    {testCase.input}
+                                  </code>
+                                </div>
+                                <div>
+                                  <span className="font-medium text-sm">Output:</span>
+                                  <code className="block bg-card/50 px-3 py-2 rounded mt-1.5 text-sm font-mono whitespace-pre-wrap border border-border">
+                                    {testCase.output}
+                                  </code>
+                                </div>
                               </div>
-                              <p className="flex-1 text-sm sm:text-base">{hint}</p>
-                            </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  </TabsContent>
-                </div>
-              </Tabs>
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="hints" className="mt-0 space-y-4">
+                      <h3 className="font-semibold text-lg flex items-center gap-2">
+                        <div className="w-1 h-5 bg-primary rounded-full" />
+                        All Test Cases
+                      </h3>
+                      {problem.testCases && problem.testCases.length > 0 ? (
+                        <div className="space-y-3">
+                          {problem.testCases.map((testCase, index) => (
+                            <div key={index} className="bg-muted/30 p-4 rounded-lg border border-border space-y-3">
+                              <div className="font-medium text-sm text-muted-foreground">Test Case {index + 1}</div>
+                              <div className="space-y-2">
+                                <div>
+                                  <span className="text-sm font-medium">Input:</span>
+                                  <code className="block bg-card/50 px-3 py-2 rounded mt-1.5 text-xs font-mono whitespace-pre-wrap border border-border">
+                                    {testCase.input}
+                                  </code>
+                                </div>
+                                <div>
+                                  <span className="text-sm font-medium">Expected Output:</span>
+                                  <code className="block bg-card/50 px-3 py-2 rounded mt-1.5 text-xs font-mono whitespace-pre-wrap border border-border">
+                                    {testCase.output}
+                                  </code>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <Alert>
+                          <AlertDescription>No test cases available</AlertDescription>
+                        </Alert>
+                      )}
+                    </TabsContent>
+                  </div>
+                </Tabs>
+              </Card>
             </div>
 
             {/* Code Editor Panel */}
-            <div className="flex flex-col overflow-hidden min-h-[400px] sm:min-h-[500px]">
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <h3 className="font-semibold text-base sm:text-lg">Code Editor</h3>
-              </div>
-
-              <div className="flex-1 flex flex-col gap-2 sm:gap-3 min-h-0">
-                {/* Code Input Section */}
-                <div className="flex-1 flex flex-col min-h-0">
-                  <label className="text-xs sm:text-sm font-medium mb-1 sm:mb-2">Your Code</label>
-                  <Textarea
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    placeholder={languages.find((l) => l.id === selectedLanguage)?.template}
-                    className="flex-1 font-mono text-xs sm:text-sm resize-none border-border min-h-[180px] sm:min-h-[220px] lg:min-h-[250px]"
-                  />
+            <div className="flex flex-col overflow-hidden min-h-[600px]">
+              <Card className="flex flex-col h-full shadow-card border-border">
+                <div className="border-b px-6 py-4 flex items-center justify-between">
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <Code2 className="w-5 h-5 text-primary" />
+                    Code Editor
+                  </h3>
+                  
+                  {/* Theme Toggle Switch */}
+                  <button
+                    onClick={toggleEditorTheme}
+                    className={cn(
+                      "relative inline-flex h-8 w-16 items-center rounded-full transition-all duration-300 ease-in-out",
+                      "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background",
+                      editorTheme === 'vs-dark' 
+                        ? "bg-slate-700 hover:bg-slate-600" 
+                        : "bg-amber-400 hover:bg-amber-500"
+                    )}
+                    aria-label="Toggle editor theme"
+                  >
+                    <span
+                      className={cn(
+                        "inline-flex h-6 w-6 items-center justify-center rounded-full bg-white shadow-lg transform transition-all duration-300 ease-in-out",
+                        editorTheme === 'vs-dark' ? "translate-x-1" : "translate-x-9"
+                      )}
+                    >
+                      {editorTheme === 'vs-dark' ? (
+                        <Moon className="h-3.5 w-3.5 text-slate-700 transition-transform duration-300" />
+                      ) : (
+                        <Sun className="h-3.5 w-3.5 text-amber-500 transition-transform duration-300" />
+                      )}
+                    </span>
+                  </button>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-2 flex-wrap">
-                  <Button
-                    variant="outline"
-                    onClick={handleRunCode}
-                    disabled={isRunning}
-                    size="sm"
-                    className="text-xs sm:text-sm h-8 sm:h-9 flex-1 sm:flex-none bg-transparent"
-                  >
-                    {isRunning ? "Running..." : "Run Code"}
-                  </Button>
-                  <Button
-                    onClick={handleSubmitCode}
-                    disabled={!code.trim() || isRunning}
-                    size="sm"
-                    className="text-xs sm:text-sm h-8 sm:h-9 flex-1 sm:flex-none"
-                  >
-                    Submit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setCode(languages.find((l) => l.id === selectedLanguage)?.template || "")}
-                    size="sm"
-                    className="text-xs sm:text-sm h-8 sm:h-9 w-full sm:w-auto"
-                  >
-                    Reset
-                  </Button>
-                </div>
+                <div className="flex-1 flex flex-col gap-4 p-6 min-h-0">
+                  {/* Monaco Code Editor */}
+                  <div className="flex-1 min-h-[300px] rounded-lg overflow-hidden border border-border shadow-inner transition-all duration-300">
+                    <CodeEditor
+                      value={code}
+                      onChange={setCode}
+                      language={selectedLanguage.name}
+                      theme={editorTheme}
+                    />
+                  </div>
 
-                {/* Output Section */}
-                <div className="flex-1 flex flex-col min-h-0">
-                  <label className="text-xs sm:text-sm font-medium mb-1 sm:mb-2">Output / Test Results</label>
-                  <div className="flex-1 bg-muted/50 p-2 sm:p-3 rounded-md border overflow-auto min-h-[120px] sm:min-h-[150px]">
-                    {output ? (
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Terminal className="w-3 h-3 sm:w-4 sm:h-4 text-primary flex-shrink-0" />
-                          <span className="text-xs sm:text-sm font-medium">Execution Result:</span>
-                        </div>
-                        <pre className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap break-words">
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      variant="outline"
+                      onClick={handleRunCode}
+                      disabled={isRunning || !code.trim()}
+                      size="sm"
+                      className="hover:border-primary transition-colors"
+                    >
+                      {isRunning ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Running...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4 mr-2" />
+                          Run Code
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={!code.trim() || isRunning}
+                      size="sm"
+                      className="bg-gradient-to-r from-primary to-accent hover:shadow-glow transition-all"
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      Submit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setCode(selectedLanguage.template);
+                        setOutput("");
+                        setOutputType('idle');
+                        setTestResults([]);
+                      }}
+                      size="sm"
+                      className="hover:bg-muted"
+                    >
+                      Reset
+                    </Button>
+                  </div>
+
+                  {/* Output Section */}
+                  <div className="flex-1 flex flex-col min-h-[180px]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Terminal className="w-4 h-4 text-muted-foreground" />
+                      <label className="text-sm font-medium">Output</label>
+                      {outputType === 'success' && <CheckCircle2 className="w-4 h-4 text-success ml-auto" />}
+                      {outputType === 'error' && <XCircle className="w-4 h-4 text-destructive ml-auto" />}
+                    </div>
+                    <div className={cn(
+                      "flex-1 p-4 rounded-lg border overflow-auto transition-colors",
+                      outputType === 'success' && "border-success/30 bg-success/5",
+                      outputType === 'error' && "border-destructive/30 bg-destructive/5",
+                      outputType === 'idle' && "bg-muted/30 border-border",
+                      outputType === 'running' && "bg-primary/5 border-primary/30"
+                    )}>
+                      {output ? (
+                        <pre className="text-sm whitespace-pre-wrap break-words font-mono">
                           {output}
                         </pre>
-                      </div>
-                    ) : (
-                      <div className="text-center text-muted-foreground py-4 sm:py-6">
-                        <Terminal className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 opacity-50" />
-                        <p className="text-xs sm:text-sm">Run your code to see the output here</p>
-                      </div>
-                    )}
+                      ) : (
+                        <div className="text-center text-muted-foreground py-8 space-y-2">
+                          <Terminal className="w-8 h-8 mx-auto opacity-30" />
+                          <p className="text-sm">Run or submit your code to see output</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-
-                {/* Test Cases Section */}
-                <div className="bg-muted/30 p-2 sm:p-3 rounded-lg">
-                  <h4 className="font-medium mb-1 sm:mb-2 text-xs sm:text-sm">Test Cases</h4>
-                  <div className="space-y-1 sm:space-y-2 max-h-20 sm:max-h-24 overflow-auto">
-                    {questionData.testCases?.map((testCase, index) => (
-                      <div
-                        key={index}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs bg-background p-2 rounded"
-                      >
-                        <span className="truncate">
-                          Input: <code className="bg-muted px-1 rounded break-all">{testCase.input}</code>
-                        </span>
-                        <span className="truncate">
-                          Expected: <code className="bg-muted px-1 rounded break-all">{testCase.output}</code>
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              </Card>
             </div>
           </div>
         </div>
       </main>
     </div>
-  )
-}
-
-// Helper function to get question by ID (same data as in Coding.tsx)
-const getQuestionById = (id: number): Problem | null => {
-  const problems: Problem[] = [
-    {
-      id: 1,
-      title: "Two Sum",
-      difficulty: "easy",
-      topic: "Arrays",
-      description:
-        "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-      problemStatement: "",
-      time: "15 min",
-      solved: 1234,
-    },
-    {
-      id: 2,
-      title: "Best Time to Buy and Sell Stock",
-      difficulty: "easy",
-      topic: "Arrays",
-      description: "You are given an array prices where prices[i] is the price of a given stock on the ith day.",
-      problemStatement: "",
-      time: "20 min",
-      solved: 1098,
-    },
-    {
-      id: 3,
-      title: "Contains Duplicate",
-      difficulty: "easy",
-      topic: "Arrays",
-      description: "Given an integer array nums, return true if any value appears at least twice in the array.",
-      problemStatement: "",
-      time: "10 min",
-      solved: 1456,
-    },
-  ]
-
-  return problems.find((p) => p.id === id) || null
-}
-
-// Helper function to get detailed question data
-const getDetailedQuestionData = (question: Problem): QuestionData => {
-  const questionData: Record<number, QuestionData> = {
-    1: {
-      description:
-        "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.",
-      examples: [
-        {
-          input: "nums = [2,7,11,15], target = 9",
-          output: "[0,1]",
-          explanation: "Because nums[0] + nums[1] == 9, we return [0, 1].",
-        },
-        {
-          input: "nums = [3,2,4], target = 6",
-          output: "[1,2]",
-          explanation: "Because nums[1] + nums[2] == 6, we return [1, 2].",
-        },
-        {
-          input: "nums = [3,3], target = 6",
-          output: "[0,1]",
-          explanation: "Because nums[0] + nums[1] == 6, we return [0, 1].",
-        },
-      ],
-      constraints: [
-        "2 ≤ nums.length ≤ 10⁴",
-        "-10⁹ ≤ nums[i] ≤ 10⁹",
-        "-10⁹ ≤ target ≤ 10⁹",
-        "Only one valid answer exists.",
-      ],
-      hints: [
-        "Use a hash map to store values and their indices",
-        "For each element, check if target - element exists in the map",
-        "Return indices when complement is found",
-      ],
-      approach: "Hash Map",
-      timeComplexity: "O(n)",
-      spaceComplexity: "O(n)",
-      testCases: [
-        { input: "[2,7,11,15], 9", output: "[0,1]" },
-        { input: "[3,2,4], 6", output: "[1,2]" },
-        { input: "[3,3], 6", output: "[0,1]" },
-      ],
-    },
-    2: {
-      description:
-        "You are given an array prices where prices[i] is the price of a given stock on the ith day. You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock. Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.",
-      examples: [
-        {
-          input: "prices = [7,1,5,3,6,4]",
-          output: "5",
-          explanation: "Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.",
-        },
-        {
-          input: "prices = [7,6,4,3,1]",
-          output: "0",
-          explanation: "In this case, no transactions are done and the max profit = 0.",
-        },
-      ],
-      constraints: ["1 ≤ prices.length ≤ 10⁵", "0 ≤ prices[i] ≤ 10⁴"],
-      hints: [
-        "Keep track of the minimum price seen so far",
-        "Calculate profit for each day",
-        "Track maximum profit achieved",
-      ],
-      approach: "One Pass",
-      timeComplexity: "O(n)",
-      spaceComplexity: "O(1)",
-      testCases: [
-        { input: "[7,1,5,3,6,4]", output: "5" },
-        { input: "[7,6,4,3,1]", output: "0" },
-        { input: "[1,2,3,4,5]", output: "4" },
-      ],
-    },
-    3: {
-      description:
-        "Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.",
-      examples: [
-        { input: "nums = [1,2,3,1]", output: "true", explanation: "The element 1 occurs at indices 0 and 3." },
-        { input: "nums = [1,2,3,4]", output: "false", explanation: "All elements are distinct." },
-        { input: "nums = [1,1,1,3,3,4,3,2,4,2]", output: "true", explanation: "Multiple duplicates exist." },
-      ],
-      constraints: ["1 ≤ nums.length ≤ 10⁵", "-10⁹ ≤ nums[i] ≤ 10⁹"],
-      hints: [
-        "Use a set to track seen elements",
-        "Return true immediately when duplicate found",
-        "Consider sorting approach as alternative",
-      ],
-      approach: "Hash Set",
-      timeComplexity: "O(n)",
-      spaceComplexity: "O(n)",
-      testCases: [
-        { input: "[1,2,3,1]", output: "true" },
-        { input: "[1,2,3,4]", output: "false" },
-      ],
-    },
-  }
-
-  const defaultData: QuestionData = {
-    description: `Solve this ${question.topic.toLowerCase()} problem: ${question.description}`,
-    examples: [
-      {
-        input: "Example input will be provided",
-        output: "Expected output",
-        explanation: "Detailed explanation of the solution approach.",
-      },
-    ],
-    constraints: ["Constraints will be specified based on problem requirements"],
-    hints: ["Analyze the problem requirements", "Consider edge cases", "Optimize for time and space complexity"],
-    approach: "Problem-specific approach",
-    timeComplexity: "To be determined",
-    spaceComplexity: "To be determined",
-    testCases: [
-      { input: "Test case 1", output: "Expected result 1" },
-      { input: "Test case 2", output: "Expected result 2" },
-    ],
-  }
-
-  return questionData[question.id] || defaultData
-}
-
-export default CodingPage
+  );
+};

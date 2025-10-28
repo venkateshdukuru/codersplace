@@ -6,6 +6,7 @@ interface Config {
   PORT: string;
   MONGO_URI: string;
   JWT_SECRET: string;
+  REDIS: string;
   NODE_ENV: string;
   ALLOWED_ORIGINS: string;
   FRONTEND_URL: string;
@@ -25,6 +26,7 @@ export const config: Config = {
   PORT: process.env.PORT || "5002",
   MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/codersplace',
   JWT_SECRET: process.env.JWT_SECRET || 'your_jwt_secret',
+  REDIS: process.env.REDIS || 'redis://localhost:6379',
   NODE_ENV: process.env.NODE_ENV || 'development',
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || "http://localhost:3000",
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5002",

@@ -1,26 +1,30 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "es2020",
+    "target": "ES2020",
     "lib": ["ES2020"],
-    "types": ["node", "express", "nodemailer"],
+    "types": ["node", "express"],
 
     /* Modules */
-    "module": "commonjs",
+    "module": "CommonJS",
     "rootDir": "./src",
     "typeRoots": ["./node_modules/@types", "./src/types"],
 
-    /* Emit */
+    /* Output */
     "outDir": "./dist",
 
-    /* Interop Constraints */
+    /* Interop */
     "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
 
     /* Type Checking */
     "strict": true,
 
-    /* Completeness */
+    /* Performance */
     "skipLibCheck": true
-  }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

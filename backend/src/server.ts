@@ -1,3 +1,5 @@
+// path: backend/src/server.ts
+
 import http from "http";
 import mongoose from "mongoose";
 import app from "./app";

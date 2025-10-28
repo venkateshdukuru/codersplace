@@ -21,7 +21,6 @@ interface AuthContextType {
   registerAdmin: (data: AdminRegisterData) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
-  updateUser: (updatedData: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -51,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const decoded = jwtDecode<DecodedToken>(token);
+          const decoded: DecodedToken = jwtDecode(token);
           const response = await authService.getProfile();
           if (response.success && response.data) {
             setUser(response.data);
@@ -93,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           } else {
             const token = localStorage.getItem('token');
             if (token) {
-              const decoded = jwtDecode<DecodedToken>(token);
+              const decoded: DecodedToken = jwtDecode(token);
               setUser({
                 _id: decoded.id,
                 name: decoded.name || data.email.split('@')[0],
@@ -111,7 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.warn('Could not fetch profile, using token data');
           const token = localStorage.getItem('token');
           if (token) {
-            const decoded = jwtDecode<DecodedToken>(token);
+            const decoded: DecodedToken = jwtDecode(token);
             setUser({
               _id: decoded.id,
               name: decoded.name || data.email.split('@')[0],
@@ -181,7 +180,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.success) {
         const token = localStorage.getItem('token');
         if (token) {
-          const decoded = jwtDecode<DecodedToken>(token);
+          const decoded: DecodedToken = jwtDecode(token);
           setUser({
             _id: decoded.id,
             name: data.name || data.email.split('@')[0],
@@ -239,14 +238,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const updateUser = (updatedData: Partial<User>) => {
-    if (user) {
-      const updatedUser = { ...user, ...updatedData };
-      setUser(updatedUser);
-      localStorage.setItem('userData', JSON.stringify(updatedUser));
-    }
-  };
-
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -256,7 +247,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     registerAdmin,
     logout,
     refreshUser,
-    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,17 +1,28 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
-import { ToastProvider } from './components/ui/toast'; // ✅ fixed typo
+import ReactDOM from 'react-dom/client';
+import App from './App';
+// import { ToastProvider } from './context/toast';   // adjust the path
+import { ToastProvider } from './components/ui/tooast';
 import { AuthProvider } from './context/AuthContext';
 import { HackathonProvider } from './context/HackathonContext';
+import './index.css';
+import { ProblemProvider } from './context/ProblemContext';
+import { QuizProvider } from './context/QuizContext';
+import { WeeklyTestProvider } from './context/WeeklyTestContext';
 
-createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ToastProvider>            
       <AuthProvider>
         <HackathonProvider>
-          <App />
+          <ProblemProvider>
+            <QuizProvider>
+              <WeeklyTestProvider>
+                <App />
+              </WeeklyTestProvider>
+            </QuizProvider>
+          </ProblemProvider>
+          
         </HackathonProvider>
       </AuthProvider>
     </ToastProvider>

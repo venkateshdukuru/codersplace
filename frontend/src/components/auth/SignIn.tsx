@@ -14,7 +14,7 @@ import {
   Eye,
   EyeOff
 } from "lucide-react";
-import Footer from "../Footer";
+import Footer from "../footer";
 
 export const SignIn = () => {
   const navigate = useNavigate();
@@ -123,13 +123,13 @@ export const SignIn = () => {
               {/* Forgot Password */}
               <div className="flex justify-end">
                 <Link
-                  to="/auth/forgot-password"
+                  to="/forgot-password"
                   className="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
                 >
                   Forgot password?
                 </Link>
               </div>
-    
+
               {/* Submit Button */}
               <Button 
                 type="submit" 

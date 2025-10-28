@@ -40,41 +40,40 @@ export const Hackathons: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 ">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white py-16">
-  <div className="container mx-auto px-6 md:px-12 lg:px-20">
-    <div className="text-center space-y-6">
-      <h1 className="text-4xl md:text-5xl font-bold">
-        Discover Amazing <span className="text-yellow-300">Hackathons</span>
-      </h1>
-      <p className="text-xl text-purple-100 max-w-3xl mx-auto">
-        Join exciting hackathons, compete with the best developers, and build innovative solutions 
-        while winning amazing prizes and networking opportunities.
-      </p>
-      {!isAuthenticated && (
-        <div className="bg-purple-800/50 rounded-lg p-4 max-w-md mx-auto">
-          <p className="text-purple-100 text-sm">
-            💡 <strong>Tip:</strong> Login to register for hackathons and track your progress!
-          </p>
+      <section className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16">
+        <div className="container mx-auto px-6 md:px-12 lg:px-20">
+          <div className="text-center space-y-6">
+            <h1 className="text-4xl md:text-5xl font-bold">
+              Discover Amazing <span className="text-yellow-300">Hackathons</span>
+            </h1>
+            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+              Join exciting hackathons, compete with the best developers, and build innovative solutions 
+              while winning amazing prizes and networking opportunities.
+            </p>
+            {!isAuthenticated && (
+              <div className="bg-blue-800/50 rounded-lg p-4 max-w-md mx-auto">
+                <p className="text-blue-100 text-sm">
+                  💡 <strong>Tip:</strong> Login to register for hackathons and track your progress!
+                </p>
+              </div>
+            )}
+            <div className="flex flex-wrap justify-center gap-8 mt-8">
+              <div className="text-center">
+                <div className="text-3xl font-bold">{hackathons.length}+</div>
+                <div className="text-blue-200">Total Events</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{hackathons.reduce((sum, h) => sum + h.completedBy.length, 0)}+</div>
+                <div className="text-blue-200">Participants</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold">{ongoingHackathons.length}</div>
+                <div className="text-blue-200">Live Events</div>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
-      <div className="flex flex-wrap justify-center gap-8 mt-8">
-        <div className="text-center">
-          <div className="text-3xl font-bold">{hackathons.length}+</div>
-          <div className="text-purple-200">Total Events</div>
-        </div>
-        <div className="text-center">
-          <div className="text-3xl font-bold">{hackathons.reduce((sum, h) => sum + h.completedBy.length, 0)}+</div>
-          <div className="text-purple-200">Participants</div>
-        </div>
-        <div className="text-center">
-          <div className="text-3xl font-bold">{ongoingHackathons.length}</div>
-          <div className="text-purple-200">Live Events</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
+      </section>
 
       {/* Search and Filters */}
       <section className="container mx-auto px-6 md:px-12 lg:px-20 py-8">
@@ -218,5 +217,3 @@ export const Hackathons: React.FC = () => {
     </div>
   );
 };
-
-export default Hackathons;

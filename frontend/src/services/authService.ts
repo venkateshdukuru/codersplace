@@ -79,9 +79,9 @@ export interface ForgotPasswordData {
 }
 
 export interface ResetPasswordData {
-    email: string;
-    otp: string;
-    newPassword: string;
+  email: string;
+  otp: string;
+  newPassword: string;
 }
 
 export interface User {
