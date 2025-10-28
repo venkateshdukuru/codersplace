@@ -10,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { Camera, User, Lock, Phone, Mail, School, Calendar, Trash2 } from "lucide-react";
 import { AvatarUpload } from "./AvatarUpload";
-import { avatarService } from "@/services/avatarService";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface ProfileDialogProps {

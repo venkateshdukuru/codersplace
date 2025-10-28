@@ -14,7 +14,7 @@ import {
   Eye,
   EyeOff
 } from "lucide-react";
-import Footer from "../footer";
+import Footer from "@/components/Footer";
 
 export const SignIn = () => {
   const navigate = useNavigate();

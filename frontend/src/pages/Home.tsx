@@ -603,7 +603,7 @@ const Home = () => {
 
           <div className="relative">
             {/* Timeline line */}
-            <div className={`hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-indigo-300 transition-all duration-[2000ms] origin-top ${
+            <div className={`hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-indigo-300 transition-all duration-2000 origin-top ${
               sectionsInView['roadmap-section'] ? 'scale-y-100' : 'scale-y-0'
             }`}></div>
 
