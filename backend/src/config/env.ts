@@ -28,7 +28,7 @@ export const config: Config = {
   JWT_SECRET: process.env.JWT_SECRET || 'your_jwt_secret',
   REDIS: process.env.REDIS || 'redis://localhost:6379',
   NODE_ENV: process.env.NODE_ENV || 'development',
-  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || "http://localhost:3000",
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || "http://localhost:3000,http://localhost:5173,https://codersplace.vercel.app,https://www.codersplace.in/",
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5002",
   MAIL_HOST: process.env.MAIL_HOST || 'smtp.gmail.com',
   MAIL_PORT: process.env.MAIL_PORT || '587',
