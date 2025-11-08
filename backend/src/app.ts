@@ -34,6 +34,8 @@ app.use(
   })
 );
 
+logger.info(`CORS enabled for origins: ${config.ALLOWED_ORIGINS}`);
+
 app.get("/", (req, res) => {
   res.status(200).json({ message: "CodersPlace Backend is running successfully 🚀" });
 });
