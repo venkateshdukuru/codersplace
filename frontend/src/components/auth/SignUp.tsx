@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import Navigation from "@/components/Navigation";
-import Footer from "../footer";
+import Footer from "@/components/Footer";
 import { OTPVerification } from "./OTPVerification";
 import { authService } from "@/services/authService";
 import { 

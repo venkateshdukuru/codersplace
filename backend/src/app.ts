@@ -27,22 +27,12 @@ app.use(express.static(path.join(__dirname, "../public")));
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-// app.use(
-//   cors({
-//     origin: config.ALLOWED_ORIGINS.split(","),
-//     credentials: true,
-//   })
-// );
-
-const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:8080', 'https://www.codersplace.in/'],
-  credentials: true, // Allow cookies to be sent
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-};
-
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: config.ALLOWED_ORIGINS.split(","),
+    credentials: true,
+  })
+);
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "CodersPlace Backend is running successfully 🚀" });
