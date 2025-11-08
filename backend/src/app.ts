@@ -29,7 +29,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: config.CORS_ORIGIN.split(","),
+    origin: config.ALLOWED_ORIGINS.split(","),
     credentials: true,
   })
 );
