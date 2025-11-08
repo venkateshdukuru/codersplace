@@ -8,7 +8,7 @@ interface Config {
   JWT_SECRET: string;
   REDIS: string;
   NODE_ENV: string;
-  ALLOWED_ORIGINS: string;
+  CORS_ORIGIN: string;
   FRONTEND_URL: string;
   MAIL_HOST: string;
   MAIL_PORT: string;
@@ -28,7 +28,8 @@ export const config: Config = {
   JWT_SECRET: process.env.JWT_SECRET || 'your_jwt_secret',
   REDIS: process.env.REDIS || 'redis://localhost:6379',
   NODE_ENV: process.env.NODE_ENV || 'development',
-  ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:5173,https://codersplace.vercel.app,https://www.codersplace.in/",
+  ALLOWED_ORIGINS: process.env.CORS_ORIGIN || "http://localhost:3000,http://localhost:5173,https://codersplace.vercel.app,https://www.codersplace.in/",
+  CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3000,http://localhost:5173,https://codersplace.vercel.app,https://www.codersplace.in/",
   FRONTEND_URL: "https://www.codersplace.in/",
   MAIL_HOST: process.env.MAIL_HOST || 'smtp.gmail.com',
   MAIL_PORT: process.env.MAIL_PORT || '587',
