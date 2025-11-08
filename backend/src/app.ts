@@ -27,14 +27,18 @@ app.use(express.static(path.join(__dirname, "../public")));
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+const allowedOriginsFromEnv = (config.ALLOWED_ORIGINS || "").split(",").filter(Boolean);
+const hardcodedOrigins = ["https://www.codersplace.in", "https://codersplace.in"];
+const allowedOrigins = [...new Set([...allowedOriginsFromEnv, ...hardcodedOrigins])];
+
 app.use(
   cors({
-    origin: config.ALLOWED_ORIGINS.split(","),
+    origin: allowedOrigins,
     credentials: true,
   })
 );
 
-logger.info(`CORS enabled for origins: ${config.ALLOWED_ORIGINS}`);
+logger.info(`CORS enabled for origins: ${allowedOrigins.join(",")}`);
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "CodersPlace Backend is running successfully 🚀" });
