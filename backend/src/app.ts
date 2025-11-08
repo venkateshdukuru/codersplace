@@ -44,6 +44,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "CodersPlace Backend is running successfully 🚀" });
+});
+
 // Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/college", collegeRoutes);
