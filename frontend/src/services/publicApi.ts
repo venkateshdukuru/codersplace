@@ -1,7 +1,7 @@
 // frontend/src/services/publicApi.ts
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL + '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Create a separate instance for public endpoints (no auth headers)
 const publicApi = axios.create({
